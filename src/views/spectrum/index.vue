@@ -1,5 +1,5 @@
 <template>
-  <div style="position:absolute;top:40px;bottom:40px;left:0;right:0;">
+  <div style="position:absolute;top:20px;bottom:20px;left:0;right:0;">
     <el-form inline>
       <el-form-item>
         <template #label>
@@ -102,6 +102,7 @@ import { isEmpty } from '@/utils/common';
 // 这里不能引入ElMessage，否则样式丢失
 // import { ElMessage } from 'element-plus';
 import NP from 'number-precision';
+import { ElMessage } from 'element-plus';
 NP.enableBoundaryChecking(false);
 
 export default defineComponent({
@@ -117,7 +118,7 @@ export default defineComponent({
     },
     height: {
       type: String,
-      default:'calc(100% - 148px)'
+      default:'calc(100% - 128px)'
     },
     id: {
       type: String,
@@ -368,86 +369,89 @@ export default defineComponent({
       })
     }
 
-    async function queryStSnrRate() {
-      const resAxios = await axios.get(`${apiServer.value}/action/shelltool?get=mdata;rxinfo;spectrumcfg;`)
-      const res = resAxios.data;
-      console.log('query fetch res json', res);
-      // 功率值
-      let power = 0;
-      if (!isEmpty(res.rxinfo)) {
-        const rxItem = res.rxinfo[0]
-        power = rxItem.power
-        bandWidth.value = NP.divide(rxItem.band, 1000) * 2
-        scanFreq.value = NP.divide(rxItem.freq, 1000)
-      }
-      // 配置项
-      if (!isEmpty(res.spectrumcfg)) {
-        const specItem = res.spectrumcfg
-        intervalTime.value = NP.divide(specItem.cycle, 1000)
-        scanEnable.value = specItem.enable
-      }
-      const { data, time, type } = res.mdata
-      const dataArr = data.split('|')
-      const pinpuData1 = []
-      const pinpuData2 = []
-      const powerArrData = []
-      for (let i = 0; i < dataArr.length; ++i) {
-        let powerVal = NP.round(Math.log10(parseInt(dataArr[i]) / 4096.0) * 10 + parseFloat(power), 2);
-        if (powerVal === -Infinity) {
-          powerVal = 0;
+    function queryStSnrRate() {
+      axios.get(`${apiServer.value}/action/shelltool?get=mdata;rxinfo;spectrumcfg;`).then(resAxios => {
+        const res = resAxios.data;
+        console.log('query fetch res json', res);
+        // 功率值
+        let power = 0;
+        if (!isEmpty(res.rxinfo)) {
+          const rxItem = res.rxinfo[0]
+          power = rxItem.power
+          bandWidth.value = NP.divide(rxItem.band, 1000) * 2
+          scanFreq.value = NP.divide(rxItem.freq, 1000)
+        }
+        // 配置项
+        if (!isEmpty(res.spectrumcfg)) {
+          const specItem = res.spectrumcfg
+          intervalTime.value = NP.divide(specItem.cycle, 1000)
+          scanEnable.value = specItem.enable
+        }
+        const { data, time, type } = res.mdata
+        const dataArr = data.split('|')
+        const pinpuData1 = []
+        const pinpuData2 = []
+        const powerArrData = []
+        for (let i = 0; i < dataArr.length; ++i) {
+          let powerVal = NP.round(Math.log10(parseInt(dataArr[i]) / 4096.0) * 10 + parseFloat(power), 2);
+          if (powerVal === -Infinity) {
+            powerVal = 0;
+          }
+
+          // pinpuData1.push({
+          //     name: i,
+          //     value: [i, parseInt(dataArr[i])],
+          // });
+          pinpuData2.push({
+              name: i,
+              value: [i, powerVal],
+          });
+          powerArrData.push(powerVal);
+        }
+        if (isEnable.value) {
+          isSingleVal.value = isSingleCarrier2(powerArrData, threshold.value);
         }
 
-        // pinpuData1.push({
-        //     name: i,
-        //     value: [i, parseInt(dataArr[i])],
-        // });
-        pinpuData2.push({
-            name: i,
-            value: [i, powerVal],
-        });
-        powerArrData.push(powerVal);
-      }
-      if (isEnable.value) {
-        isSingleVal.value = isSingleCarrier2(powerArrData, threshold.value);
-      }
+        // if (pinpuData1.length > 20) {
+        //   pinpuData1.shift()
+        // }
 
-      // if (pinpuData1.length > 20) {
-      //   pinpuData1.shift()
-      // }
-
-      if (myChart) {
-        myChart.setOption({
-          ...myChart.getOption(),
-          title: {
-            text: `频谱图（${parseTime(new Date(), '{y}-{m}-{d} {h}:{i}:{s}')}）`,
-            left: 'center',
-          },
-          series: [
-          {
-            name: '功率',
-            type: "line",
-            yAxisIndex: 0,
-            symbol: "circle",
-            sampling: "lttb",
-            itemStyle: {
-              color: "rgb(255, 70, 131)",
+        if (myChart) {
+          myChart.setOption({
+            ...myChart.getOption(),
+            title: {
+              text: `频谱图（${parseTime(new Date(), '{y}-{m}-{d} {h}:{i}:{s}')}）`,
+              left: 'center',
             },
-            data: pinpuData1,
-          },
-          {
-            name: '功率log',
-            type: "line",
-            yAxisIndex: 1,
-            symbol: "circle",
-            sampling: "lttb",
-            itemStyle: {
-              color: "#7581BD",
+            series: [
+            {
+              name: '功率',
+              type: "line",
+              yAxisIndex: 0,
+              symbol: "circle",
+              sampling: "lttb",
+              itemStyle: {
+                color: "rgb(255, 70, 131)",
+              },
+              data: pinpuData1,
             },
-            data: pinpuData2,
-          },
-          ]
-        }, true)
-      }
+            {
+              name: '功率log',
+              type: "line",
+              yAxisIndex: 1,
+              symbol: "circle",
+              sampling: "lttb",
+              itemStyle: {
+                color: "#7581BD",
+              },
+              data: pinpuData2,
+            },
+            ]
+          }, true)
+        }
+      }).catch(err => {
+        ElMessage.error('请求数据异常，请检查IP地址及网络')
+      })
     }
 
     function handleApiServerBlur() {

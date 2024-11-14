@@ -3,7 +3,8 @@ import {
     app,
     BrowserWindow,
     ipcMain,
-    dialog
+    dialog,
+    Menu
 } from 'electron';
 
 const isDev = process.env.npm_lifecycle_event === "app:dev" ? true : false;
@@ -16,15 +17,20 @@ async function handleFileOpen() {
 }
 
 function createWindow() {
+    // 取消菜单栏
+    // Menu.setApplicationMenu(null)
     // Create the browser window.
     const mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
+        show: false,
         webPreferences: {
             webSecurity: false,
             preload: join(__dirname, '../preload/preload.js'),
         },
     });
+    mainWindow.maximize()
+    mainWindow.show()
 
     // and load the index.html of the app.
     if (isDev) {
