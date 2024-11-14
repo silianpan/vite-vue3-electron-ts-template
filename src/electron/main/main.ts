@@ -37,7 +37,8 @@ function createWindow() {
         mainWindow.loadURL('http://localhost:3000');// Open the DevTools.
         mainWindow.webContents.openDevTools();
     } else {
-        mainWindow.loadFile(join(__dirname, '../../index.html'));
+        // mainWindow.loadFile(join(__dirname, '../../index.html'));
+        mainWindow.loadURL(`file://${__dirname}/dist/index.html`);
     }
     // mainWindow.loadURL( //this doesn't work on macOS in build and preview mode
     //     isDev ?
