@@ -16,7 +16,8 @@
     "app:preview": "npm run vite:build && tsc && electron ."
   },
   "build": {
-    "appId": "YourAppID",
+    "productName": "Spectrum",
+    "appId": "com.coresat.nms.spectrum",
     "asar": true,
     "directories": {
       "buildResources": "assets",
@@ -32,6 +33,7 @@
       ]
     },
     "win": {
+      "icon": "src/assets/icon.ico",
       "target": [
         {
           "target": "nsis",
