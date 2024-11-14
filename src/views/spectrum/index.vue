@@ -99,7 +99,8 @@ import axios from 'axios';
 // import { $t, getLang } from '@/lang'
 import { parseTime } from '@/utils/common';
 import { isEmpty } from '@/utils/common';
-import { ElMessage } from 'element-plus';
+// 这里不能引入ElMessage，否则样式丢失
+// import { ElMessage } from 'element-plus';
 import NP from 'number-precision';
 NP.enableBoundaryChecking(false);
 
