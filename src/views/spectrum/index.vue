@@ -355,7 +355,7 @@ export default defineComponent({
     }
 
     async function queryStSnrRate() {
-      const res = await fetch('http://192.168.168.254/action/shelltool?get=mdata;rxinfo;spectrumcfg;')
+      const res = await fetch('http://192.168.168.2/action/shelltool?get=mdata;rxinfo;spectrumcfg;')
       // 功率值
       let power = 0;
       if (!isEmpty(res.rxinfo)) {
