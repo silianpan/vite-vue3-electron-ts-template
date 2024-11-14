@@ -81,6 +81,12 @@
           </div>
         </div>
       </el-form-item>
+      <el-form-item style="margin-right:10px">
+        <template #label>
+          <span style="font-size:16px">{{'IP地址:'}}</span>
+        </template>
+        <el-input v-model="apiServer" style="width:200px" @blur="handleApiServerBlur" />
+      </el-form-item>
     </el-form>
     <div :id="id" :class="className" :style="{ height: height, width: width }" />
   </div>
@@ -88,10 +94,12 @@
 
 <script lang="ts">
 import { ref, markRaw, onMounted, onUnmounted, defineComponent, computed } from 'vue';
-import * as echarts from 'echarts'
+import * as echarts from 'echarts';
+import axios from 'axios';
 // import { $t, getLang } from '@/lang'
 import { parseTime } from '@/utils/common';
 import { isEmpty } from '@/utils/common';
+import { ElMessage } from 'element-plus';
 import NP from 'number-precision';
 NP.enableBoundaryChecking(false);
 
@@ -118,6 +126,7 @@ export default defineComponent({
   setup(props) {
     let timer = null;
     let myChart = null;
+    const apiServer = ref('http://192.168.168.2')
     const saveBtnLoading = ref(false);
     const scanEnable = ref(true);
     const threshold = ref(10);
@@ -133,6 +142,7 @@ export default defineComponent({
     const resolution = ref(0);
 
     onMounted(() => {
+      apiServer.value = localStorage.getItem('apiServer') || 'http://192.168.168.2'
       initChartData();
       initTask();
     });
@@ -331,31 +341,37 @@ export default defineComponent({
     // 保存配置
     function handleSaveClick() {
       saveBtnLoading.value = true
-      System.IO('cmd', { name: 'set', data: { cmd: 'rxcfg', type: 'save', params: {
-        id: 0,
-        freq: NP.times(scanFreq.value, 1000),
-        band: NP.divide(NP.times(bandWidth.value, 1000), 2)
-      }} }).then((res: any) => {
-          System.message(`success:设置成功`)
-          saveBtnLoading.value = false;
-      }).catch(() => {
-          System.message(`error:设置失败`)
-          saveBtnLoading.value = false;
+
+      axios.post(`${apiServer.value}/action/shelltool`, {
+        set: `rxcfg -s s,id=${0},freq=${NP.times(scanFreq.value, 1000)},band=${NP.divide(NP.times(bandWidth.value, 1000), 2)}`
+      }).then(res => {
+        console.log('rxcfg axios then res', res);
+        ElMessage.success('设置成功')
+        saveBtnLoading.value = false;
+      }).catch(err => {
+        console.log('rxcfg axios catch err', err);
+        ElMessage.error('设置失败')
+        saveBtnLoading.value = false;
       })
-      System.IO('cmd', { name: 'set', data: { cmd: 'spectrumcfg', type: 'save', params: {
-        enable: scanEnable.value,
-        cycle: NP.times(intervalTime.value, 1000),
-      }} }).then((res: any) => {
-          System.message(`success:设置成功`)
-          saveBtnLoading.value = false;
-      }).catch(() => {
-          System.message(`error:设置失败`)
-          saveBtnLoading.value = false;
+
+      axios.post(`${apiServer.value}/action/shelltool`, {
+        set: `spectrumcfg -s s,enable=${scanEnable.value},cycle=${NP.times(intervalTime.value, 1000)}`
+      }).then(res => {
+        console.log('spectrumcfg axios then res', res);
+        ElMessage.success('设置成功')
+        saveBtnLoading.value = false;
+      }).catch(err => {
+        console.log('spectrumcfg axios catch err', err);
+        ElMessage.error('设置失败')
+        saveBtnLoading.value = false;
       })
     }
 
     async function queryStSnrRate() {
-      const res = await fetch('http://192.168.168.2/action/shelltool?get=mdata;rxinfo;spectrumcfg;')
+      const resFetch = await fetch(`${apiServer.value}/action/shelltool?get=mdata;rxinfo;spectrumcfg;`)
+      console.log('query fetch res', resFetch);
+      const res = resFetch.json();
+      console.log('query fetch res json', res);
       // 功率值
       let power = 0;
       if (!isEmpty(res.rxinfo)) {
@@ -433,7 +449,14 @@ export default defineComponent({
         }, true)
       }
     }
+
+    function handleApiServerBlur() {
+      if (!isEmpty(apiServer.value)) {
+        localStorage.setItem('apiServer', apiServer.value)
+      }
+    }
     return {
+      apiServer,
       saveBtnLoading,
       scanEnable,
       startFreq,
@@ -445,6 +468,7 @@ export default defineComponent({
       threshold,
       isSingleVal,
       handleSaveClick,
+      handleApiServerBlur,
     }
   }
 });
