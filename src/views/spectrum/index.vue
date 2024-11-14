@@ -343,8 +343,13 @@ export default defineComponent({
     function handleSaveClick() {
       saveBtnLoading.value = true
 
-      axios.post(`${apiServer.value}/action/shelltool`, {
-        set: `rxcfg -s s,id=${0},freq=${NP.times(scanFreq.value, 1000)},band=${NP.divide(NP.times(bandWidth.value, 1000), 2)}`
+      const formDataRxcfg = new FormData()
+      formDataRxcfg.append('set', `rxcfg -s s,id=${0},freq=${NP.times(scanFreq.value, 1000)},band=${NP.divide(NP.times(bandWidth.value, 1000), 2)}`);
+
+      axios.post(`${apiServer.value}/action/shelltool`, formDataRxcfg, {
+        headers: {
+          "Content-Type": "multipart/form-data" 
+        }
       }).then(res => {
         console.log('rxcfg axios then res', res);
         ElMessage.success('设置成功')
@@ -355,8 +360,12 @@ export default defineComponent({
         saveBtnLoading.value = false;
       })
 
-      axios.post(`${apiServer.value}/action/shelltool`, {
-        set: `spectrumcfg -s s,enable=${scanEnable.value},cycle=${NP.times(intervalTime.value, 1000)}`
+      const formDataSpectrumcfg = new FormData()
+      formDataSpectrumcfg.append('set', `spectrumcfg -s s,enable=${scanEnable.value},cycle=${NP.times(intervalTime.value, 1000)}`)
+      axios.post(`${apiServer.value}/action/shelltool`, formDataSpectrumcfg, {
+        headers: {
+          "Content-Type": "multipart/form-data" 
+        }
       }).then(res => {
         console.log('spectrumcfg axios then res', res);
         ElMessage.success('设置成功')
