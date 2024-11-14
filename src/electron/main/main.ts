@@ -38,7 +38,7 @@ function createWindow() {
         mainWindow.webContents.openDevTools();
     } else {
         // mainWindow.loadFile(join(__dirname, '../../index.html'));
-        mainWindow.loadURL(`file://${__dirname}/dist/index.html`);
+        mainWindow.loadURL(`file://${__dirname}/index.html`);
     }
     // mainWindow.loadURL( //this doesn't work on macOS in build and preview mode
     //     isDev ?
