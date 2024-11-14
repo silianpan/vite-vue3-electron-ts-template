@@ -156,7 +156,7 @@ export default defineComponent({
       cleanTimer();
       timer = setInterval(() => {
         queryStSnrRate()
-      }, (intervalTime.value + 2) * 1000)
+      }, (intervalTime.value + 3) * 1000)
     }
     // 清理定时器
     function cleanTimer() {
