@@ -26,6 +26,8 @@ function createWindow() {
         show: false,
         webPreferences: {
             webSecurity: false,
+            allowRunningInsecureContent: true,
+            nodeIntegration:true,
             preload: join(__dirname, '../preload/preload.js'),
         },
     });
@@ -37,8 +39,8 @@ function createWindow() {
         mainWindow.loadURL('http://localhost:3000');// Open the DevTools.
         mainWindow.webContents.openDevTools();
     } else {
-        // mainWindow.loadFile(join(__dirname, '../../index.html'));
-        mainWindow.loadURL(`file://${__dirname}/index.html`);
+        mainWindow.loadFile(join(__dirname, '../../index.html'));
+        // mainWindow.loadURL(`file://${__dirname}/index.html`);
     }
     // mainWindow.loadURL( //this doesn't work on macOS in build and preview mode
     //     isDev ?
