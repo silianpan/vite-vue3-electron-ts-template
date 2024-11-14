@@ -368,9 +368,8 @@ export default defineComponent({
     }
 
     async function queryStSnrRate() {
-      const resFetch = await fetch(`${apiServer.value}/action/shelltool?get=mdata;rxinfo;spectrumcfg;`)
-      console.log('query fetch res', resFetch);
-      const res = resFetch.json();
+      const resAxios = await axios.get(`${apiServer.value}/action/shelltool?get=mdata;rxinfo;spectrumcfg;`)
+      const res = resAxios.data;
       console.log('query fetch res json', res);
       // 功率值
       let power = 0;
