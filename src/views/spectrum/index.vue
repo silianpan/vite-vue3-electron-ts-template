@@ -453,6 +453,46 @@ export default defineComponent({
       })
     }
 
+    function cleanLocalData() {
+      // 校验单载波为false
+      isSingleCarrier.value = false
+      // 清理图形数据
+      if (myChart) {
+        myChart.setOption({
+          ...myChart.getOption(),
+          title: {
+            text: `频谱图（${parseTime(new Date(), '{y}-{m}-{d} {h}:{i}:{s}')}）`,
+            left: 'center',
+          },
+          series: [
+          {
+            name: '功率',
+            type: "line",
+            yAxisIndex: 0,
+            symbol: "circle",
+            sampling: "lttb",
+            itemStyle: {
+              color: "rgb(255, 70, 131)",
+            },
+            data: [],
+          },
+          {
+            name: '功率log',
+            type: "line",
+            yAxisIndex: 1,
+            symbol: "circle",
+            sampling: "lttb",
+            itemStyle: {
+              color: "#7581BD",
+            },
+            data: [],
+          },
+          ]
+        }, true)
+      }
+      
+    }
+
     function handleApiServerBlur() {
       if (!isEmpty(apiServer.value)) {
         localStorage.setItem('apiServer', apiServer.value)
