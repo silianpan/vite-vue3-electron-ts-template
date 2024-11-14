@@ -449,7 +449,8 @@ export default defineComponent({
           }, true)
         }
       }).catch(err => {
-        ElMessage.error('请求数据异常，请检查IP地址及网络')
+        ElMessage.error('请求数据异常，请检查IP地址及网络');
+        cleanLocalData();
       })
     }
 
