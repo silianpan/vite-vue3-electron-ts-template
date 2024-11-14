@@ -102,7 +102,6 @@ import { isEmpty } from '@/utils/common';
 // 这里不能引入ElMessage，否则样式丢失
 // import { ElMessage } from 'element-plus';
 import NP from 'number-precision';
-import { ElMessage } from 'element-plus';
 NP.enableBoundaryChecking(false);
 
 export default defineComponent({
