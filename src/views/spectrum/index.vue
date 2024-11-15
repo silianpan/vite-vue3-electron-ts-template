@@ -345,10 +345,9 @@ export default defineComponent({
     function handleSaveClick() {
       saveBtnLoading.value = true
 
-      const formDataRxcfg = new FormData()
-      formDataRxcfg.append('set', `rxcfg -s s,id=${0},freq=${NP.times(scanFreq.value, 1000)},band=${NP.divide(NP.times(bandWidth.value, 1000), 2)}`);
-
-      axios.post(`${apiServer.value}/action/shelltool`, formDataRxcfg, {
+      axios.post(`${apiServer.value}/action/shelltool`, {
+        set: `rxcfg -s s,id=${0},freq=${NP.times(scanFreq.value, 1000)},band=${NP.divide(NP.times(bandWidth.value, 1000), 2)}`
+      }, {
         headers: {
           "Content-Type": "multipart/form-data" 
         }
@@ -362,9 +361,9 @@ export default defineComponent({
         saveBtnLoading.value = false;
       })
 
-      const formDataSpectrumcfg = new FormData()
-      formDataSpectrumcfg.append('set', `spectrumcfg -s s,enable=${scanEnable.value},cycle=${NP.times(intervalTime.value, 1000)}`)
-      axios.post(`${apiServer.value}/action/shelltool`, formDataSpectrumcfg, {
+      axios.post(`${apiServer.value}/action/shelltool`, {
+        set: `spectrumcfg -s s,enable=${scanEnable.value},cycle=${NP.times(intervalTime.value, 1000)}`
+      }, {
         headers: {
           "Content-Type": "multipart/form-data" 
         }
