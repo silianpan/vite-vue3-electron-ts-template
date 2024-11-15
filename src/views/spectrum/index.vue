@@ -95,7 +95,6 @@
 <script lang="ts">
 import { ref, markRaw, onMounted, onUnmounted, defineComponent, computed } from 'vue';
 import * as echarts from 'echarts';
-import axios from 'axios';
 // import { $t, getLang } from '@/lang'
 import { parseTime } from '@/utils/common';
 import { isEmpty } from '@/utils/common';
@@ -103,6 +102,8 @@ import { isEmpty } from '@/utils/common';
 // import { ElMessage } from 'element-plus';
 import NP from 'number-precision';
 NP.enableBoundaryChecking(false);
+import axios from 'axios';
+axios.defaults.timeout = 3000;
 
 export default defineComponent({
   name: 'PageSpectrumHome',
@@ -127,8 +128,6 @@ export default defineComponent({
   setup(props) {
     let timer = null;
     let myChart = null;
-    // 请求超时，毫秒
-    const axiosTimout = 3000
     const apiServer = ref('http://192.168.168.2')
     const saveBtnLoading = ref(false);
     const scanEnable = ref(true);
@@ -158,7 +157,7 @@ export default defineComponent({
       cleanTimer();
       timer = setInterval(() => {
         queryStSnrRate()
-      }, (intervalTime.value + 3) * 1000)
+      }, (intervalTime.value + 2) * 1000)
     }
     // 清理定时器
     function cleanTimer() {
@@ -350,7 +349,6 @@ export default defineComponent({
       formDataRxcfg.append('set', `rxcfg -s s,id=${0},freq=${NP.times(scanFreq.value, 1000)},band=${NP.divide(NP.times(bandWidth.value, 1000), 2)}`);
 
       axios.post(`${apiServer.value}/action/shelltool`, formDataRxcfg, {
-        timeout: axiosTimout,
         headers: {
           "Content-Type": "multipart/form-data" 
         }
@@ -367,7 +365,6 @@ export default defineComponent({
       const formDataSpectrumcfg = new FormData()
       formDataSpectrumcfg.append('set', `spectrumcfg -s s,enable=${scanEnable.value},cycle=${NP.times(intervalTime.value, 1000)}`)
       axios.post(`${apiServer.value}/action/shelltool`, formDataSpectrumcfg, {
-        timeout: axiosTimout,
         headers: {
           "Content-Type": "multipart/form-data" 
         }
@@ -383,9 +380,7 @@ export default defineComponent({
     }
 
     function queryStSnrRate() {
-      axios.get(`${apiServer.value}/action/shelltool?get=mdata;rxinfo;spectrumcfg;`, {
-        timeout: axiosTimout,
-      }).then(resAxios => {
+      axios.get(`${apiServer.value}/action/shelltool?get=mdata;rxinfo;spectrumcfg;`).then(resAxios => {
         const res = resAxios.data;
         console.log('query fetch res json', res);
         // 功率值
