@@ -69,23 +69,33 @@
           </template>
         </el-input>
       </el-form-item>
+      <el-form-item style="margin-right:10px">
+        <template #label>
+          <span style="font-size:16px">{{'偏差:'}}</span>
+        </template>
+        <el-input type="number" v-model="blasFreq" style="width:130px" :disabled="!isEnable" :step="0.1" :precision="3">
+          <template #suffix>
+            <span>KHz</span>
+          </template>
+        </el-input>
+      </el-form-item>
       <el-form-item v-show="isEnable">
         <template #label>
           <!-- <span style="font-size:16px">{{'单载波判断阈值:'}}</span> -->
         </template>
-        <div style="display:flex">
+        <!-- <div style="display:flex"> -->
           <!-- <el-input type="number" v-model="threshold" style="width:130px" /> -->
-          <div style="font-size:16px;width:200px;margin-left:10px">
+          <div style="font-size:16px;width:160px;margin-left:10px">
             <span>是否为单载波：</span>
             <span :style="{color: isSingleVal ? 'green' : 'red'}">{{`${isSingleVal ? '是' : '否'}`}}</span>
           </div>
-        </div>
+        <!-- </div> -->
       </el-form-item>
       <el-form-item style="margin-right:10px">
         <template #label>
           <span style="font-size:16px">{{'IP地址:'}}</span>
         </template>
-        <el-input v-model="apiServer" style="width:200px" @blur="handleApiServerBlur" />
+        <el-input v-model="apiServer" style="width:276px" @blur="handleApiServerBlur" />
       </el-form-item>
     </el-form>
     <div :id="id" :class="className" :style="{ height: height, width: width }" />
@@ -142,6 +152,7 @@ export default defineComponent({
       return scanFreq.value - bandWidth.value / 2
     })
     const resolution = ref(0);
+    const blasFreq = ref(0);
 
     onMounted(() => {
       apiServer.value = localStorage.getItem('apiServer') || 'http://192.168.168.2'
@@ -333,7 +344,7 @@ export default defineComponent({
       console.log('maxIndexPreq', maxIndexPreq)
 
       // 和单载波中心频点差绝对值
-      const singleDiff = Math.abs(NP.minus(maxIndexPreq, singleFreq.value))
+      const singleDiff = Math.abs(NP.minus(maxIndexPreq, singleFreq.value)) + NP.divide(blasFreq.value, 1000);
 
       // 比较值
       const compVal = singleDiff < resolution.value;
@@ -521,6 +532,7 @@ export default defineComponent({
       intervalTime,
       threshold,
       isSingleVal,
+      blasFreq,
       handleSaveClick,
       handleApiServerBlur,
     }
