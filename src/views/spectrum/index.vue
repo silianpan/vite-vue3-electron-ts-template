@@ -344,11 +344,13 @@ export default defineComponent({
       console.log('maxIndexPreq', maxIndexPreq)
 
       // 和单载波中心频点差绝对值
-      const singleDiff = Math.abs(NP.minus(maxIndexPreq, singleFreq.value)) + NP.divide(blasFreq.value, 1000);
+      const singleDiff = Math.abs(NP.minus(maxIndexPreq, singleFreq.value));
 
+      // 算上偏差的分辨率
+      const resolBla = resolution.value + NP.divide(blasFreq.value, 1000);
       // 比较值
-      const compVal = singleDiff < resolution.value;
-      console.log('singleDiff < resolution', compVal, singleDiff, resolution.value);
+      const compVal = singleDiff < resolBla;
+      console.log('singleDiff < resolution', compVal, singleDiff, resolution.value, resolBla);
       return compVal;
     }
 
