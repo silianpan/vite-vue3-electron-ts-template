@@ -157,7 +157,7 @@ export default defineComponent({
       cleanTimer();
       timer = setInterval(() => {
         queryStSnrRate()
-      }, (intervalTime.value + 2) * 1000)
+      }, intervalTime.value * 1000)
     }
     // 清理定时器
     function cleanTimer() {
@@ -221,9 +221,9 @@ export default defineComponent({
             position: 'right',
             alighTicks: true,
             axisLabel: {
-              interval: 10,
               formatter: '{value} dB'
             },
+            interval: 10,
             // boundaryGap: ['2%', "20%"],
             boundaryGap: [0, "100%"],
             // min: 'dataMin',
@@ -236,12 +236,12 @@ export default defineComponent({
         dataZoom: [
           {
             type: "inside",
-            start: 40,
-            end: 60,
+            start: 50,
+            end: 62.5,
           },
           {
-            start: 40,
-            end: 60,
+            start: 50,
+            end: 62.5,
             top: '94%',
             bottom: 10
           },
