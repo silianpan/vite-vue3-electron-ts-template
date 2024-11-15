@@ -127,6 +127,8 @@ export default defineComponent({
   setup(props) {
     let timer = null;
     let myChart = null;
+    // 请求超时，毫秒
+    const axiosTimout = 3000
     const apiServer = ref('http://192.168.168.2')
     const saveBtnLoading = ref(false);
     const scanEnable = ref(true);
@@ -134,8 +136,8 @@ export default defineComponent({
     const isSingleVal = ref(null);
     const intervalTime = ref(5);
     const bandWidth = ref(16);
-    const scanFreq = ref(1450);
-    const singleFreq = ref(1451);
+    const scanFreq = ref(1400);
+    const singleFreq = ref(1401);
     const isEnable = ref(true);
     const startFreq = computed(() => {
       return scanFreq.value - bandWidth.value / 2
@@ -220,6 +222,7 @@ export default defineComponent({
             position: 'right',
             alighTicks: true,
             axisLabel: {
+              interval: 10,
               formatter: '{value} dB'
             },
             // boundaryGap: ['2%', "20%"],
@@ -347,6 +350,7 @@ export default defineComponent({
       formDataRxcfg.append('set', `rxcfg -s s,id=${0},freq=${NP.times(scanFreq.value, 1000)},band=${NP.divide(NP.times(bandWidth.value, 1000), 2)}`);
 
       axios.post(`${apiServer.value}/action/shelltool`, formDataRxcfg, {
+        timeout: axiosTimout,
         headers: {
           "Content-Type": "multipart/form-data" 
         }
@@ -363,6 +367,7 @@ export default defineComponent({
       const formDataSpectrumcfg = new FormData()
       formDataSpectrumcfg.append('set', `spectrumcfg -s s,enable=${scanEnable.value},cycle=${NP.times(intervalTime.value, 1000)}`)
       axios.post(`${apiServer.value}/action/shelltool`, formDataSpectrumcfg, {
+        timeout: axiosTimout,
         headers: {
           "Content-Type": "multipart/form-data" 
         }
@@ -378,7 +383,9 @@ export default defineComponent({
     }
 
     function queryStSnrRate() {
-      axios.get(`${apiServer.value}/action/shelltool?get=mdata;rxinfo;spectrumcfg;`).then(resAxios => {
+      axios.get(`${apiServer.value}/action/shelltool?get=mdata;rxinfo;spectrumcfg;`, {
+        timeout: axiosTimout,
+      }).then(resAxios => {
         const res = resAxios.data;
         console.log('query fetch res json', res);
         // 功率值
