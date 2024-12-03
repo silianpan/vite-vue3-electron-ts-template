@@ -48,12 +48,12 @@
         </template>
         <el-switch v-model="scanEnable" active-value="on" inactive-value="off" />
       </el-form-item>
-      <el-form-item style="margin-right:10px">
+      <!-- <el-form-item style="margin-right:10px">
         <el-button type="primary" :loading="saveBtnLoading" @click="handleSaveClick">保存配置</el-button>
-      </el-form-item>
+      </el-form-item> -->
     </el-form>
     <el-form inline>
-      <el-form-item style="margin-right:10px">
+      <!-- <el-form-item style="margin-right:10px">
         <template #label>
           <span style="font-size:16px">{{'单载波检测:'}}</span>
         </template>
@@ -78,19 +78,19 @@
             <span>KHz</span>
           </template>
         </el-input>
-      </el-form-item>
-      <el-form-item v-show="isEnable">
+      </el-form-item> -->
+      <!-- <el-form-item v-show="isEnable">
         <template #label>
-          <!-- <span style="font-size:16px">{{'单载波判断阈值:'}}</span> -->
+          <span style="font-size:16px">{{'单载波判断阈值:'}}</span>
         </template>
-        <!-- <div style="display:flex"> -->
-          <!-- <el-input type="number" v-model="threshold" style="width:130px" /> -->
+        <div style="display:flex">
+          <el-input type="number" v-model="threshold" style="width:130px" />
           <div style="font-size:16px;width:160px;margin-left:10px">
             <span>是否为单载波：</span>
             <span :style="{color: isSingleVal ? 'green' : 'red'}">{{`${isSingleVal ? '是' : '否'}`}}</span>
           </div>
-        <!-- </div> -->
-      </el-form-item>
+        </div>
+      </el-form-item> -->
       <el-form-item style="margin-right:10px">
         <template #label>
           <span style="font-size:16px">{{'IP地址:'}}</span>
@@ -151,7 +151,7 @@ export default defineComponent({
     const bandWidth = ref(16);
     const scanFreq = ref(1400);
     const singleFreq = ref(1401);
-    const isEnable = ref(true);
+    const isEnable = ref(false);
     const startFreq = computed(() => {
       return scanFreq.value - bandWidth.value / 2
     })
@@ -331,44 +331,44 @@ export default defineComponent({
       })
     }
     // 计算平均功率
-    function calculateAveragePower(powerValues) {
-        console.log('powerValues.length',powerValues.reduce((sum, value) => NP.plus(sum, value), 0), powerValues.length);
-        return powerValues.reduce((sum, value) => sum + value, 0) / powerValues.length;
-    }
+    // function calculateAveragePower(powerValues) {
+    //     console.log('powerValues.length',powerValues.reduce((sum, value) => NP.plus(sum, value), 0), powerValues.length);
+    //     return powerValues.reduce((sum, value) => sum + value, 0) / powerValues.length;
+    // }
 
     // 计算标准差
-    function calculateStandardDeviation(powerValues, averagePower) {
-        const variance = powerValues.reduce((sum, value) => sum + Math.pow(value - averagePower, 2), 0) / powerValues.length;
-        return Math.sqrt(variance);
-    }
+    // function calculateStandardDeviation(powerValues, averagePower) {
+    //     const variance = powerValues.reduce((sum, value) => sum + Math.pow(value - averagePower, 2), 0) / powerValues.length;
+    //     return Math.sqrt(variance);
+    // }
 
     // 找到最大功率及其索引
-    function findMaxPowerIndex(powerValues) {
-        let maxIndex = 0;
-        let maxValue = powerValues[0];
-        for (let i = 1; i < powerValues.length; i++) {
-            if (powerValues[i] > maxValue) {
-                maxValue = powerValues[i];
-                maxIndex = i;
-            }
-        }
-        return { maxIndex, maxValue };
-    }
+    // function findMaxPowerIndex(powerValues) {
+    //     let maxIndex = 0;
+    //     let maxValue = powerValues[0];
+    //     for (let i = 1; i < powerValues.length; i++) {
+    //         if (powerValues[i] > maxValue) {
+    //             maxValue = powerValues[i];
+    //             maxIndex = i;
+    //         }
+    //     }
+    //     return { maxIndex, maxValue };
+    // }
 
     // 判断是否为单载波信号
-    function isSingleCarrier(powerValues, threshold) {
-        const averagePower = calculateAveragePower(powerValues);
-        console.log('averagePower', averagePower);
-        const stdDev = calculateStandardDeviation(powerValues, averagePower);
-        const { maxIndex, maxValue } = findMaxPowerIndex(powerValues);
+    // function isSingleCarrier(powerValues, threshold) {
+    //     const averagePower = calculateAveragePower(powerValues);
+    //     console.log('averagePower', averagePower);
+    //     const stdDev = calculateStandardDeviation(powerValues, averagePower);
+    //     const { maxIndex, maxValue } = findMaxPowerIndex(powerValues);
 
-        // 判断标准差是否足够大，以及最大功率是否显著高于平均值
-        const isHighStdDev = stdDev > threshold * averagePower;
-        const isHighMaxValue = maxValue > threshold * averagePower;
-        console.log('stdDev maxValue', stdDev, maxValue)
+    //     // 判断标准差是否足够大，以及最大功率是否显著高于平均值
+    //     const isHighStdDev = stdDev > threshold * averagePower;
+    //     const isHighMaxValue = maxValue > threshold * averagePower;
+    //     console.log('stdDev maxValue', stdDev, maxValue)
 
-        return isHighStdDev && isHighMaxValue;
-    }
+    //     return isHighStdDev && isHighMaxValue;
+    // }
 
     // 判断是否为单载波信号
     function isSingleCarrier2(powerValues, threshold) {
@@ -397,40 +397,44 @@ export default defineComponent({
     }
 
     // 保存配置
-    function handleSaveClick() {
+    function handleSaveClick(rxcfgVal = true, spectrumcfgVal = true) {
       saveBtnLoading.value = true
 
-      axios.post(`${apiServer.value}/action/shelltool`, {
-        set: `rxcfg -s s,id=${0},freq=${NP.times(scanFreq.value, 1000)},band=${NP.divide(NP.times(bandWidth.value, 1000), 2)}`
-      }, {
-        headers: {
-          "Content-Type": "multipart/form-data" 
-        }
-      }).then(res => {
-        console.log('rxcfg axios then res', res);
-        ElMessage.success('设置成功')
-        saveBtnLoading.value = false;
-      }).catch(err => {
-        console.log('rxcfg axios catch err', err);
-        ElMessage.error('设置失败')
-        saveBtnLoading.value = false;
-      })
+      if (rxcfgVal) {
+        axios.post(`${apiServer.value}/action/shelltool`, {
+          set: `rxcfg -s s,id=${0},freq=${NP.times(scanFreq.value, 1000)},band=${NP.divide(NP.times(bandWidth.value, 1000), 2)}`
+        }, {
+          headers: {
+            "Content-Type": "multipart/form-data" 
+          }
+        }).then(res => {
+          console.log('rxcfg axios then res', res);
+          ElMessage.success('设置成功')
+          saveBtnLoading.value = false;
+        }).catch(err => {
+          console.log('rxcfg axios catch err', err);
+          ElMessage.error('设置失败')
+          saveBtnLoading.value = false;
+        })
+      }
 
-      axios.post(`${apiServer.value}/action/shelltool`, {
-        set: `spectrumcfg -s s,enable=${scanEnable.value},cycle=${NP.times(intervalTime.value, 1000)}`
-      }, {
-        headers: {
-          "Content-Type": "multipart/form-data" 
-        }
-      }).then(res => {
-        console.log('spectrumcfg axios then res', res);
-        ElMessage.success('设置成功')
-        saveBtnLoading.value = false;
-      }).catch(err => {
-        console.log('spectrumcfg axios catch err', err);
-        ElMessage.error('设置失败')
-        saveBtnLoading.value = false;
-      })
+      if (spectrumcfgVal) {
+        axios.post(`${apiServer.value}/action/shelltool`, {
+          set: `spectrumcfg -s s,enable=${scanEnable.value},cycle=${NP.times(intervalTime.value, 1000)}`
+        }, {
+          headers: {
+            "Content-Type": "multipart/form-data" 
+          }
+        }).then(res => {
+          console.log('spectrumcfg axios then res', res);
+          ElMessage.success('设置成功')
+          saveBtnLoading.value = false;
+        }).catch(err => {
+          console.log('spectrumcfg axios catch err', err);
+          ElMessage.error('设置失败')
+          saveBtnLoading.value = false;
+        })
+      }
     }
 
     function queryStSnrRate() {
@@ -442,14 +446,31 @@ export default defineComponent({
         if (!isEmpty(res.rxinfo)) {
           const rxItem = res.rxinfo[0]
           power = rxItem.power
-          bandWidth.value = NP.divide(rxItem.band, 1000) * 2
-          scanFreq.value = NP.divide(rxItem.freq, 1000)
+
+          const tmpBandWidth = NP.divide(rxItem.band, 1000) * 2
+          const tmpScanFreq = NP.divide(rxItem.freq, 1000)
+
+          if (tmpBandWidth != bandWidth.value || tmpScanFreq != scanFreq.value) {
+            // 保存
+            handleSaveClick(true, false)
+          } else {
+            bandWidth.value = tmpBandWidth
+            scanFreq.value = tmpScanFreq
+          }
         }
         // 配置项
         if (!isEmpty(res.spectrumcfg)) {
           const specItem = res.spectrumcfg
-          intervalTime.value = NP.divide(specItem.cycle, 1000)
-          scanEnable.value = specItem.enable
+          const tmpIntervalTime = NP.divide(specItem.cycle, 1000)
+          const tmpScanEnable = specItem.enable
+
+          if (tmpIntervalTime != intervalTime.value || tmpScanEnable != scanEnable.value) {
+            // 保存
+            handleSaveClick(false, true)
+          } else {
+            intervalTime.value = tmpIntervalTime
+            scanEnable.value = tmpScanEnable
+          }
         }
         const { data, time, type } = res.mdata
         const dataArr = data.split('|')
