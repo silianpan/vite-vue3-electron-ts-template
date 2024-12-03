@@ -127,7 +127,7 @@
 
 <script lang="ts">
 // import { ipcRenderer } from 'electron';
-import { ref, markRaw, onMounted, onUnmounted, defineComponent, computed, getCurrentInstance } from 'vue';
+import { ref, markRaw, onMounted, onUnmounted, defineComponent, computed, getCurrentInstance, watch } from 'vue';
 import * as echarts from 'echarts';
 // import { $t, getLang } from '@/lang'
 import { parseTime } from '@/utils/common';
@@ -165,6 +165,7 @@ export default defineComponent({
     const currentInstance = getCurrentInstance();
     const pcba = ref(0)
     const pcbaQuery = ref(0)
+    const maxPowerLogIndex = ref(null)
     let timer = null;
     let myChart = null;
     const telnetd_enable = ref('off')
@@ -236,6 +237,16 @@ export default defineComponent({
     onUnmounted(() => {
       cleanTimer();
     });
+    // watch(() => maxPowerLogIndex.value, (val) => {
+    //   console.log('watch index', val)
+    //   if (myChart && !isEmpty(val)) {
+    //     myChart.dispatchAction({
+    //         type: 'showTip',
+    //         seriesIndex: 1,
+    //         dataIndex: val 
+    //     });
+    //   }
+    // })
 
     function initTask() {
       queryStSnrRate();
@@ -274,9 +285,10 @@ export default defineComponent({
         },
         tooltip: {
           trigger: "axis",
-          position: function (pt) {
-            return [pt[0], "10%"];
-          },
+          alwaysShowContent: true,
+          // position: function (pt) {
+          //   return [pt[0], "10%"];
+          // },
         },
         xAxis: {
           type: "category",
@@ -417,6 +429,7 @@ export default defineComponent({
       resolution.value = NP.divide(bandWidth.value, powerValues.length - 1);
       // 最大功率索引
       const { maxIndex, maxValue } = findMaxPowerIndex(powerValues);
+      maxPowerLogIndex.value = maxIndex;
       console.log('maxIndex', maxIndex, maxValue);
 
       // 起始频点
@@ -572,6 +585,13 @@ export default defineComponent({
             },
             ]
           }, true)
+          if (!isEmpty(maxPowerLogIndex.value)) {
+            myChart.dispatchAction({
+                type: 'showTip',
+                seriesIndex: 1,
+                dataIndex: maxPowerLogIndex.value 
+            });
+          }
         }
       }).catch(err => {
         ElMessage.error('请求数据异常，请检查IP地址及网络');
