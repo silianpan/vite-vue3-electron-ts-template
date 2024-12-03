@@ -91,6 +91,13 @@
           </div>
         </div>
       </el-form-item> -->
+      <el-form-item style="margin-right:20px">
+        <template #label>
+          <span style="font-size:16px">{{'设备标识:'}}</span>
+        </template>
+        <el-input v-model="pcba" style="width:130px" @blur="handlePcbaClick" @keyup.enter="handlePcbaClick" />
+        <span style="margin-left:8px">{{ pcbaQuery }}</span>
+      </el-form-item>
       <el-form-item>
         <template #label>
           <span style="font-size:16px">{{'Telnet开关:'}}</span>
@@ -156,6 +163,8 @@ export default defineComponent({
   },
   setup(props) {
     const currentInstance = getCurrentInstance();
+    const pcba = ref(0)
+    const pcbaQuery = ref(0)
     let timer = null;
     let myChart = null;
     const telnetd_enable = ref('off')
@@ -444,7 +453,7 @@ export default defineComponent({
           saveBtnLoading.value = false;
         }).catch(err => {
           console.log('rxcfg axios catch err', err);
-          ElMessage.error('设置失败')
+          ElMessage.error('rxcfg设置失败')
           saveBtnLoading.value = false;
         })
       }
@@ -462,7 +471,7 @@ export default defineComponent({
           saveBtnLoading.value = false;
         }).catch(err => {
           console.log('spectrumcfg axios catch err', err);
-          ElMessage.error('设置失败')
+          ElMessage.error('spectrumcfg设置失败')
           saveBtnLoading.value = false;
         })
       }
@@ -683,13 +692,40 @@ export default defineComponent({
           const res = resAxios.data;
           if (!isEmpty(res.oducfg)) {
             lnb_pwr.value = res.oducfg.lnb_pwr;
+            pcbaQuery.value = res.oducfg.pcba || 0;
           }
         })
         .catch((err) => {
           ElMessage.error("请求数据异常，请检查IP地址及网络");
         });
     }
+    function handlePcbaClick() {
+      if (isEmpty(pcba.value) || pcba.value == 0) {
+        return
+      }
+      axios
+        .post(
+          `${apiServer.value}/action/shelltool`,
+          {
+            set: `oducfg -s s,pcba=${pcba.value}`,
+          },
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        )
+        .then((res) => {
+          console.log("odu pcba value", pcba.value);
+          ElMessage.success('设备标识设置成功')
+        })
+        .catch((err) => {
+          ElMessage.error('设备标识设置失败')
+        });
+    }
     return {
+      pcba,
+      pcbaQuery,
       telnetd_enable,
       lnb_pwr,
       lnb_pwr_map,
@@ -707,6 +743,7 @@ export default defineComponent({
       blasFreq,
       handleSaveClick,
       handleApiServerBlur,
+      handlePcbaClick,
     }
   }
 });
