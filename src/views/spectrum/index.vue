@@ -91,6 +91,22 @@
           </div>
         </div>
       </el-form-item> -->
+      <el-form-item>
+        <template #label>
+          <span style="font-size:16px">{{'Telnet开关:'}}</span>
+        </template>
+        <div style="font-size:16px;margin-left:10px">
+          <span :style="{color: telnetd_enable == 'on' ? 'green' : 'red'}">{{`${telnetd_enable == 'on' ? '开' : '关'}`}}</span>
+        </div>
+      </el-form-item>
+      <el-form-item>
+        <template #label>
+          <span style="font-size:16px">{{'ODU馈电电压:'}}</span>
+        </template>
+        <div style="font-size:16px;margin-left:10px">
+          <span :style="{color: lnb_pwr != 'off' ? 'green' : 'red'}">{{`${lnb_pwr_map[lnb_pwr]}`}}</span>
+        </div>
+      </el-form-item>
       <el-form-item style="margin-right:10px">
         <template #label>
           <span style="font-size:16px">{{'IP地址:'}}</span>
@@ -142,7 +158,14 @@ export default defineComponent({
     const currentInstance = getCurrentInstance();
     let timer = null;
     let myChart = null;
-    const apiServer = ref('http://192.168.168.2')
+    const telnetd_enable = ref('off')
+    const lnb_pwr = ref('off')
+    const lnb_pwr_map = {
+      off: '关',
+      on_13: '13V',
+      on_18: '18V',
+    }
+    const apiServer = ref('http://192.168.1.104')
     const saveBtnLoading = ref(false);
     const scanEnable = ref(true);
     const threshold = ref(10);
@@ -206,11 +229,18 @@ export default defineComponent({
     });
 
     function initTask() {
+      handleAutoOpenTelnet();
+      handleAutoOpenOdu();
       queryStSnrRate();
+      queryTelnetCfg();
+      queryOduCfg();
       cleanTimer();
       timer = setInterval(() => {
+        handleAutoOpenTelnet();
+        handleAutoOpenOdu();
         queryStSnrRate()
-        handleAutoOpenTelnet()
+        queryTelnetCfg()
+        queryOduCfg();
       }, intervalTime.value * 1000)
     }
     // 清理定时器
@@ -441,7 +471,6 @@ export default defineComponent({
     function queryStSnrRate() {
       axios.get(`${apiServer.value}/action/shelltool?get=mdata;rxinfo;spectrumcfg;`).then(resAxios => {
         const res = resAxios.data;
-        console.log('query fetch res json', res);
         // 功率值
         let power = 0;
         if (!isEmpty(res.rxinfo)) {
@@ -543,7 +572,7 @@ export default defineComponent({
 
     function cleanLocalData() {
       // 校验单载波为false
-      isSingleCarrier.value = false
+      // isSingleCarrier.value = false
       // 清理图形数据
       if (myChart) {
         myChart.setOption({
@@ -588,11 +617,12 @@ export default defineComponent({
     }
 
     function handleAutoOpenTelnet() {
+      const telnetd_enable = localStorage.getItem('setting-telnet-telnetd_enable') || 'on'
       axios
         .post(
           `${apiServer.value}/action/shelltool`,
           {
-            set: `telnetdcfg -s s,telnetd_enable=true`,
+            set: `telnetdcfg -s s,telnetd_enable=${telnetd_enable}`,
           },
           {
             headers: {
@@ -607,7 +637,56 @@ export default defineComponent({
         .catch((err) => {
         });
     }
+    function handleAutoOpenOdu() {
+      const lnb_pwr = localStorage.getItem('setting-odu-lnb_pwr') || 'on_13';
+      axios
+        .post(
+          `${apiServer.value}/action/shelltool`,
+          {
+            set: `oducfg -s s,lnb_pwr=${lnb_pwr}`,
+          },
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        )
+        .then((res) => {
+          console.log("odu enable true", res);
+        })
+        .catch((err) => {
+        });
+    }
+    function queryTelnetCfg() {
+      axios
+        .get(`${apiServer.value}/action/shelltool?get=telnetdcfg;`)
+        .then((resAxios) => {
+          const res = resAxios.data;
+          if (!isEmpty(res.telnetdcfg)) {
+            telnetd_enable.value = res.telnetdcfg.telnetd_enable;
+          }
+        })
+        .catch((err) => {
+          ElMessage.error("请求数据异常，请检查IP地址及网络");
+        });
+    }
+    function queryOduCfg() {
+      axios
+        .get(`${apiServer.value}/action/shelltool?get=oducfg;`)
+        .then((resAxios) => {
+          const res = resAxios.data;
+          if (!isEmpty(res.oducfg)) {
+            lnb_pwr.value = res.oducfg.lnb_pwr;
+          }
+        })
+        .catch((err) => {
+          ElMessage.error("请求数据异常，请检查IP地址及网络");
+        });
+    }
     return {
+      telnetd_enable,
+      lnb_pwr,
+      lnb_pwr_map,
       apiServer,
       saveBtnLoading,
       scanEnable,

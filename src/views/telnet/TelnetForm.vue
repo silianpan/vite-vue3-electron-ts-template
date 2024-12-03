@@ -20,6 +20,7 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, ref } from "vue";
+// import { isEmpty } from '@/utils/common';
 import axios from "axios";
 axios.defaults.timeout = 3000;
 
@@ -39,6 +40,11 @@ export default defineComponent({
     });
 
     function handleSubmitClick() {
+      // 存储本地
+      localStorage.setItem('setting-telnet-telnetd_enable', formData.value.telnetd_enable)
+
+      // 调用接口
+      saveBtnLoading.value = true;
       axios
         .post(
           `${props.apiServer}/action/shelltool`,
@@ -55,6 +61,7 @@ export default defineComponent({
           console.log("telnetdcfg axios then res", res);
           ElMessage.success("设置成功");
           saveBtnLoading.value = false;
+          emit('ok');
           handleCancelClick();
         })
         .catch((err) => {
@@ -68,18 +75,20 @@ export default defineComponent({
     }
 
     function queryTelnetCfg() {
-      axios
-        .get(`${props.apiServer}/action/shelltool?get=telnetdcfg;`)
-        .then((resAxios) => {
-          const res = resAxios.data;
-          if (!isEmpty(res.telnetdcfg)) {
-            const { telnetd_enable } = res.telnetdcfg;
-            formData.value.telnetd_enable = telnetd_enable;
-          }
-        })
-        .catch((err) => {
-          ElMessage.error("请求数据异常，请检查IP地址及网络");
-        });
+       formData.value.telnetd_enable = localStorage.getItem('setting-telnet-telnetd_enable') || 'on'
+      // axios
+      //   .get(`${props.apiServer}/action/shelltool?get=telnetdcfg;`)
+      //   .then((resAxios) => {
+      //     const res = resAxios.data;
+      //     if (!isEmpty(res.telnetdcfg)) {
+      //       const { telnetd_enable } = res.telnetdcfg;
+      //       console.log('res.telnetdcfg', res.telnetdcfg)
+      //       formData.value.telnetd_enable = telnetd_enable;
+      //     }
+      //   })
+      //   .catch((err) => {
+      //     ElMessage.error("请求数据异常，请检查IP地址及网络");
+      //   });
     }
     return {
       formData,

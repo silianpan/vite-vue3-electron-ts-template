@@ -3,7 +3,7 @@
   <el-form :model="formData" label-width="auto">
     <el-form-item label="LNB馈电电压">
       <el-radio-group v-model="formData.lnb_pwr">
-        <el-radio value="on_18" size="large">18V</el-radio>
+        <!-- <el-radio value="on_18" size="large">18V</el-radio> -->
         <el-radio value="on_13" size="large">13V</el-radio>
         <el-radio value="off" size="large">关</el-radio>
       </el-radio-group>
@@ -22,6 +22,7 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, ref } from "vue";
+// import { isEmpty } from '@/utils/common';
 import axios from "axios";
 axios.defaults.timeout = 3000;
 
@@ -56,6 +57,11 @@ export default defineComponent({
     });
 
     function handleSubmitClick() {
+      // 存储本地
+      localStorage.setItem('setting-odu-lnb_pwr', formData.value.lnb_pwr)
+
+      // 调用接口
+      saveBtnLoading.value = true;
       axios
         .post(
           `${props.apiServer}/action/shelltool`,
@@ -72,6 +78,7 @@ export default defineComponent({
           console.log("oducfg axios then res", res);
           ElMessage.success("设置成功");
           saveBtnLoading.value = false;
+          emit('ok')
           handleCancelClick();
         })
         .catch((err) => {
@@ -85,18 +92,19 @@ export default defineComponent({
     }
 
     function queryOduCfg() {
-      axios
-        .get(`${props.apiServer}/action/shelltool?get=oducfg;`)
-        .then((resAxios) => {
-          const res = resAxios.data;
-          if (!isEmpty(res.oducfg)) {
-            const { lnb_pwr } = res.oducfg;
-            formData.value.lnb_pwr = lnb_pwr;
-          }
-        })
-        .catch((err) => {
-          ElMessage.error("请求数据异常，请检查IP地址及网络");
-        });
+      formData.value.lnb_pwr = localStorage.getItem('setting-odu-lnb_pwr') || 'on_13';
+      // axios
+      //   .get(`${props.apiServer}/action/shelltool?get=oducfg;`)
+      //   .then((resAxios) => {
+      //     const res = resAxios.data;
+      //     if (!isEmpty(res.oducfg)) {
+      //       const { lnb_pwr } = res.oducfg;
+      //       formData.value.lnb_pwr = lnb_pwr;
+      //     }
+      //   })
+      //   .catch((err) => {
+      //     ElMessage.error("请求数据异常，请检查IP地址及网络");
+      //   });
     }
     return {
       // formItems,
