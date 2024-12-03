@@ -229,7 +229,7 @@ export default defineComponent({
           }
         })
       });
-      apiServer.value = localStorage.getItem('apiServer') || 'http://192.168.168.2'
+      apiServer.value = localStorage.getItem('apiServer') || 'http://192.168.1.104'
       initChartData();
       initTask();
     });
