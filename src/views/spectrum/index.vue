@@ -289,12 +289,12 @@ export default defineComponent({
         dataZoom: [
           {
             type: "inside",
-            start: 50,
-            end: 62.5,
+            start: 40,
+            end: 70,
           },
           {
-            start: 50,
-            end: 62.5,
+            start: 40,
+            end: 70,
             top: '94%',
             bottom: 10
           },
