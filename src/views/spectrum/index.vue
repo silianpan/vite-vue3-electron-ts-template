@@ -172,7 +172,7 @@ export default defineComponent({
     const isSingleVal = ref(null);
     const intervalTime = ref(5);
     const bandWidth = ref(16);
-    const scanFreq = ref(1400);
+    const scanFreq = ref(1697);
     const singleFreq = ref(1401);
     const isEnable = ref(false);
     const startFreq = computed(() => {
@@ -229,18 +229,18 @@ export default defineComponent({
     });
 
     function initTask() {
-      handleAutoOpenTelnet();
-      handleAutoOpenOdu();
       queryStSnrRate();
       queryTelnetCfg();
       queryOduCfg();
+      handleAutoOpenTelnet();
+      handleAutoOpenOdu();
       cleanTimer();
       timer = setInterval(() => {
-        handleAutoOpenTelnet();
-        handleAutoOpenOdu();
         queryStSnrRate()
         queryTelnetCfg()
         queryOduCfg();
+        handleAutoOpenTelnet();
+        handleAutoOpenOdu();
       }, intervalTime.value * 1000)
     }
     // 清理定时器
@@ -617,12 +617,15 @@ export default defineComponent({
     }
 
     function handleAutoOpenTelnet() {
-      const telnetd_enable = localStorage.getItem('setting-telnet-telnetd_enable') || 'on'
+      const local_telnetd_enable = localStorage.getItem('setting-telnet-telnetd_enable') || 'on'
+      if (telnetd_enable.value == local_telnetd_enable) {
+        return
+      }
       axios
         .post(
           `${apiServer.value}/action/shelltool`,
           {
-            set: `telnetdcfg -s s,telnetd_enable=${telnetd_enable}`,
+            set: `telnetdcfg -s s,telnetd_enable=${local_telnetd_enable}`,
           },
           {
             headers: {
@@ -638,12 +641,15 @@ export default defineComponent({
         });
     }
     function handleAutoOpenOdu() {
-      const lnb_pwr = localStorage.getItem('setting-odu-lnb_pwr') || 'on_13';
+      const local_lnb_pwr = localStorage.getItem('setting-odu-lnb_pwr') || 'on_13';
+      if (lnb_pwr.value == local_lnb_pwr) {
+        return
+      }
       axios
         .post(
           `${apiServer.value}/action/shelltool`,
           {
-            set: `oducfg -s s,lnb_pwr=${lnb_pwr}`,
+            set: `oducfg -s s,lnb_pwr=${local_lnb_pwr}`,
           },
           {
             headers: {
