@@ -590,7 +590,7 @@ export default defineComponent({
     function handleAutoOpenTelnet() {
       axios
         .post(
-          `${props.apiServer}/action/shelltool`,
+          `${apiServer.value}/action/shelltool`,
           {
             set: `telnetdcfg -s s,telnetd_enable=true`,
           },
