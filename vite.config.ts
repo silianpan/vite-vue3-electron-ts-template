@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+// import vueJsx from '@vitejs/plugin-vue-jsx'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
@@ -13,6 +14,7 @@ const pathResolve = (dir: string): string => {
 export default defineConfig({
   plugins: [
     vue(),
+    // vueJsx(),
     AutoImport({
       resolvers: [ElementPlusResolver()],
     }),
@@ -21,6 +23,7 @@ export default defineConfig({
     }),
   ],
   resolve: {
+    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue'],
     alias: {
       '@': pathResolve('src'),
     }
@@ -30,5 +33,11 @@ export default defineConfig({
     hmr: {
       overlay: false
     }
-  }
+  },
+  css: {
+    preprocessorOptions: {
+      // additionalData: `@use "@/styles/element/index.scss" as *;`,
+      scss: { api: 'modern-compiler' },
+    }
+  },
 })

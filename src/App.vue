@@ -1,12 +1,27 @@
-<script setup lang="ts">
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import Spectrum from "./views/spectrum/index.vue";
-</script>
-
 <template>
   <Spectrum />
 </template>
+
+<script lang="ts">
+// This starter template is using Vue 3 <script setup> SFCs
+// Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
+import Spectrum from "./views/spectrum/index.vue";
+import { defineComponent, ref, onMounted, getCurrentInstance } from 'vue';
+export default defineComponent({
+  name: 'App',
+  components: {
+    Spectrum
+  },
+  setup() {
+    const currentInstance = getCurrentInstance();
+    onMounted(() => {
+      // window.electronAPI.onSettingScan(() => {
+      //   console.log('setting-scan');
+      // });
+    })
+  }
+});
+</script>
 
 <style>
 #app {

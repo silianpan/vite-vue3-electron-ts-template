@@ -1,0 +1,172 @@
+/* el-divider 修改高度&虚线效果 */
+.el-divider--horizontal {
+  margin: 16px 0 !important;
+  // background: 0 0;
+  // border-top: 1px dashed #e8eaec;
+}
+
+.sform-form-item {
+  width: 100% !important;
+  // display: flex !important;
+  // justify-content: flex-start !important;
+  // align-items: center !important;
+
+  // .el-form-item__label {
+  //   flex: 1;
+  //   width: 100%;
+  // }
+
+  .el-form-item__content {
+    // flex: 2;
+    width: 100%;
+  }
+}
+
+// form card start
+.table-card {
+  border: 1px solid #fff;
+  // box-shadow: 0 0 1px 1px #aaa, 3px 0 5px 0 #aaa, 0 4px 7px 0 #aaa;
+  width: 100%;
+  overflow: auto;
+}
+
+.documentsIssuedTitle {
+  margin-top: 1px;
+  font-weight: 700;
+  text-align: center;
+  display: block;
+  color: #000;
+  font-size: 24px;
+}
+
+.s-border-zero {
+  border: 0 solid #d9d9d9 !important;
+  border-radius: 0 !important;
+
+  &:focus,
+  &:hover {
+    border-right: 0 solid #d9d9d9 !important;
+  }
+}
+
+.ant-upload-select-picture-card i {
+  font-size: 32px;
+  color: #999;
+}
+
+.ant-upload-select-picture-card .ant-upload-text {
+  margin-top: 8px;
+  color: #666;
+}
+
+/*表格样式*/
+.documentsIssueTable {
+  width: 90%;
+  background: #ccc;
+  margin: 10px auto;
+  border-collapse: collapse;
+  /*border-collapse:collapse合并内外边距
+(去除表格单元格默认的2个像素内外边距*/
+
+  width: 100%;
+  font-size: 12px;
+  text-align: center;
+  background-color: #fff;
+
+  .firstTr {
+    width: 100px;
+  }
+
+  .el-form-item {
+    margin-bottom: 0 !important;
+
+    .el-input__inner {
+      height: 36px !important;
+    }
+  }
+
+  .text {
+    border: 0 solid #000 !important;
+    border-radius: 0;
+    background-color: #fff;
+    margin: 0 auto;
+    width: 100%;
+    font-size: 14px;
+    // text-align: center;
+    height: 38px;
+  }
+
+  .ant-select-selection,
+  .ant-calendar-picker-input {
+    background-color: #fff;
+    border-radius: 0;
+    border: 0 solid #d9d9d9;
+    border-top-width: 0;
+    height: 40px;
+    padding-top: 4px;
+  }
+
+  .ant-form-item-control {
+    text-align: left;
+  }
+
+  .ant-select-selection-selected-value {
+    white-space: break-spaces;
+  }
+
+  .ant-form-explain {
+    padding-left: 10px;
+  }
+
+  .ant-calendar-picker {
+    width: 100%;
+  }
+
+  th,
+  td {
+    height: 25px;
+    line-height: 25px;
+    text-align: center;
+    border: 1px solid #ccc;
+    font-family: '\5fae\8f6f\96c5\9ed1';
+    color: #000;
+  }
+
+  th {
+    background: #eee;
+    font-weight: normal;
+  }
+
+  tr {
+    height: 40px;
+    // background: #fff;
+  }
+
+  // tr:hover {
+  //   background: #cc0;
+  // }
+  td a {
+    color: #06f;
+    text-decoration: none;
+  }
+
+  td a:hover {
+    color: #06f;
+    text-decoration: underline;
+  }
+}
+// form card end
+
+/* 弹框底部样式 */
+.bottom-control {
+  position: absolute;
+  bottom: -10px;
+  width: 100%;
+  border-top: 1px solid #e8e8e8;
+  padding: 10px 16px;
+  text-align: right;
+  left: 0;
+  background: #f5f7fa;
+  box-shadow: 0px 10px 25px -5px rgba(113, 124, 138, 0.2);
+  border-radius: 0 0 4px 4px;
+}

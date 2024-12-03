@@ -104,7 +104,7 @@
 
 <script lang="ts">
 // import { ipcRenderer } from 'electron';
-import { ref, markRaw, onMounted, onUnmounted, defineComponent, computed } from 'vue';
+import { ref, markRaw, onMounted, onUnmounted, defineComponent, computed, getCurrentInstance } from 'vue';
 import * as echarts from 'echarts';
 // import { $t, getLang } from '@/lang'
 import { parseTime } from '@/utils/common';
@@ -115,6 +115,8 @@ import NP from 'number-precision';
 NP.enableBoundaryChecking(false);
 import axios from 'axios';
 axios.defaults.timeout = 3000;
+import OduForm from '../odu/OduForm.vue';
+import TelnetForm from '../telnet/TelnetForm.vue';
 
 export default defineComponent({
   name: 'PageSpectrumHome',
@@ -137,6 +139,7 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const currentInstance = getCurrentInstance();
     let timer = null;
     let myChart = null;
     const apiServer = ref('http://192.168.168.2')
@@ -158,12 +161,41 @@ export default defineComponent({
     onMounted(() => {
       window.electronAPI.onSettingOdu(() => {
         console.log('setting-odu');
-      });
-      window.electronAPI.onSettingScan(() => {
-        console.log('setting-scan');
+        currentInstance?.appContext.config.globalProperties.$createEleModal({
+          modalProps: {
+            width: '40%',
+            closeOnClickModal: false,
+            title: 'ODU配置',
+          },
+          content: {
+            template: OduForm,
+            props: {
+              apiServer: apiServer.value,
+            }
+          },
+          onOk: () => {
+            console.log('odu ok');
+          }
+        })
       });
       window.electronAPI.onSettingTelnet(() => {
         console.log('setting-telenet');
+        currentInstance?.appContext.config.globalProperties.$createEleModal({
+          modalProps: {
+            width: '40%',
+            closeOnClickModal: false,
+            title: 'Telnet配置',
+          },
+          content: {
+            template: TelnetForm,
+            props: {
+              apiServer: apiServer.value,
+            }
+          },
+          onOk: () => {
+            console.log('odu ok');
+          }
+        })
       });
       apiServer.value = localStorage.getItem('apiServer') || 'http://192.168.168.2'
       initChartData();
