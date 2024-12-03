@@ -174,7 +174,7 @@ export default defineComponent({
     const bandWidth = ref(16);
     const scanFreq = ref(1697);
     const singleFreq = ref(1401);
-    const isEnable = ref(false);
+    const isEnable = ref(true);
     const startFreq = computed(() => {
       return scanFreq.value - bandWidth.value / 2
     })
@@ -374,17 +374,17 @@ export default defineComponent({
     // }
 
     // 找到最大功率及其索引
-    // function findMaxPowerIndex(powerValues) {
-    //     let maxIndex = 0;
-    //     let maxValue = powerValues[0];
-    //     for (let i = 1; i < powerValues.length; i++) {
-    //         if (powerValues[i] > maxValue) {
-    //             maxValue = powerValues[i];
-    //             maxIndex = i;
-    //         }
-    //     }
-    //     return { maxIndex, maxValue };
-    // }
+    function findMaxPowerIndex(powerValues) {
+        let maxIndex = 0;
+        let maxValue = powerValues[0];
+        for (let i = 1; i < powerValues.length; i++) {
+            if (powerValues[i] > maxValue) {
+                maxValue = powerValues[i];
+                maxIndex = i;
+            }
+        }
+        return { maxIndex, maxValue };
+    }
 
     // 判断是否为单载波信号
     // function isSingleCarrier(powerValues, threshold) {
