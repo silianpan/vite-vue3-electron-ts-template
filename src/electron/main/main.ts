@@ -47,6 +47,36 @@ function createWindow() {
     //     'http://localhost:3000' :
     //     join(__dirname, '../../index.html')
     // );
+
+    const menu = Menu.buildFromTemplate([
+    {
+      label: '设置',
+      submenu: [
+        {
+          label: '频谱扫描参数',
+          click: () => {
+            // 向渲染进程发送事件
+            mainWindow.webContents.send('setting-scan');
+          }
+        },
+        {
+          label: 'ODU',
+          click: () => {
+            // 向渲染进程发送事件
+            mainWindow.webContents.send('setting-odu');
+          }
+        },
+        {
+          label: 'Telnet',
+          click: () => {
+            // 向渲染进程发送事件
+            mainWindow.webContents.send('setting-telnet');
+          }
+        },
+      ]
+    }
+  ]);
+  Menu.setApplicationMenu(menu);
 }
 
 // This method will be called when Electron has finished

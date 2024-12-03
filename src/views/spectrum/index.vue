@@ -103,6 +103,7 @@
 </template>
 
 <script lang="ts">
+// import { ipcRenderer } from 'electron';
 import { ref, markRaw, onMounted, onUnmounted, defineComponent, computed } from 'vue';
 import * as echarts from 'echarts';
 // import { $t, getLang } from '@/lang'
@@ -155,6 +156,15 @@ export default defineComponent({
     const blasFreq = ref(0);
 
     onMounted(() => {
+      window.electronAPI.onSettingOdu(() => {
+        console.log('setting-odu');
+      });
+      window.electronAPI.onSettingScan(() => {
+        console.log('setting-scan');
+      });
+      window.electronAPI.onSettingTelnet(() => {
+        console.log('setting-telenet');
+      });
       apiServer.value = localStorage.getItem('apiServer') || 'http://192.168.168.2'
       initChartData();
       initTask();

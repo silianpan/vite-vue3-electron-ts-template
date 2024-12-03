@@ -13,5 +13,8 @@ window.addEventListener('DOMContentLoaded', () => {
 })
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  openFile: () => ipcRenderer.invoke('dialog:openFile')
+  openFile: () => ipcRenderer.invoke('dialog:openFile'),
+  onSettingScan: (callback: any) => ipcRenderer.on('setting-scan', callback),
+  onSettingOdu: (callback: any) => ipcRenderer.on('setting-odu', callback),
+  onSettingTelnet: (callback: any) => ipcRenderer.on('setting-telnet', callback),
 })
