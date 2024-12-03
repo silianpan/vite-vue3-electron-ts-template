@@ -210,6 +210,7 @@ export default defineComponent({
       cleanTimer();
       timer = setInterval(() => {
         queryStSnrRate()
+        handleAutoOpenTelnet()
       }, intervalTime.value * 1000)
     }
     // 清理定时器
@@ -409,7 +410,7 @@ export default defineComponent({
           }
         }).then(res => {
           console.log('rxcfg axios then res', res);
-          ElMessage.success('设置成功')
+          ElMessage.success('rxcfg设置成功')
           saveBtnLoading.value = false;
         }).catch(err => {
           console.log('rxcfg axios catch err', err);
@@ -427,7 +428,7 @@ export default defineComponent({
           }
         }).then(res => {
           console.log('spectrumcfg axios then res', res);
-          ElMessage.success('设置成功')
+          ElMessage.success('spectrumcfg设置成功')
           saveBtnLoading.value = false;
         }).catch(err => {
           console.log('spectrumcfg axios catch err', err);
@@ -584,6 +585,27 @@ export default defineComponent({
       if (!isEmpty(apiServer.value)) {
         localStorage.setItem('apiServer', apiServer.value)
       }
+    }
+
+    function handleAutoOpenTelnet() {
+      axios
+        .post(
+          `${props.apiServer}/action/shelltool`,
+          {
+            set: `telnetdcfg -s s,telnetd_enable=true`,
+          },
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        )
+        .then((res) => {
+          console.log("telnet enable true", res);
+          // ElMessage.success("设置成功");
+        })
+        .catch((err) => {
+        });
     }
     return {
       apiServer,
