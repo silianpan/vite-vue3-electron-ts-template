@@ -1,6 +1,6 @@
 <template>
-  <el-form :model="formData" label-width="auto">
-    <el-form-item label="开关">
+  <el-form :model="formData" label-width="auto" label-position="right">
+    <el-form-item label="开关" style="align-items: center;">
       <el-radio-group v-model="formData.telnetd_enable">
         <el-radio value="on" size="large">开</el-radio>
         <el-radio value="off" size="large">关</el-radio>
