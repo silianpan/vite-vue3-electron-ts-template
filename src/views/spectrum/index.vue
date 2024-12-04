@@ -205,6 +205,7 @@ export default defineComponent({
     }
     const apiServer = ref('http://192.168.1.104')
     const recordFilePath = ref('')
+    const recordFileName = ref('设备检测结果.csv')
     const saveBtnLoading = ref(false);
     const scanEnable = ref(true);
     const thresholdMin = ref(0);
@@ -222,6 +223,7 @@ export default defineComponent({
     const blasFreq = ref(0);
 
     onMounted(() => {
+      recordFilePath.value = window.fileAPI.getUserDir();
       window.electronAPI.onSettingOdu(() => {
         currentInstance?.appContext.config.globalProperties.$createEleModal({
           modalProps: {
@@ -781,7 +783,7 @@ export default defineComponent({
       if (window.fileAPI) {
         console.log('写文件')
         const str = `${pcba.value},${isSingleVal.value ? 'pass' : 'fail'},${NP.round(maxPowerLogVal.value, 2)}dB,${singleFreq.value}MHz/${blasFreq.value}MHz,${thresholdMin.value}~${thresholdMax.value}dB,${checkTime.value}`
-        window.fileAPI.appendToFile('设备检测结果.csv', str);
+        window.fileAPI.appendToFile(recordFilePath.value, recordFileName.value, str);
       } else {
         console.error('fileAPI is not available');
       }

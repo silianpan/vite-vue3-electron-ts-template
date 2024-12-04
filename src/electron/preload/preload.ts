@@ -23,10 +23,26 @@ contextBridge.exposeInMainWorld('electronAPI', {
 })
 
 contextBridge.exposeInMainWorld('fileAPI', {
-  appendToFile: (fileName: string, content: string) => {
-    const userDir = os.homedir(); // 获取用户目录
+  getUserDir: () => os.homedir(),
+  appendToFile: (userDir: string, fileName: string, content: string) => {
+    // 如果 userDir 为空或 null，使用用户主目录
+    if (!userDir || userDir.length === 0) {
+      userDir = os.homedir();
+    }
+
+    // 检查目录是否存在，不存在则创建
+    if (!fs.existsSync(userDir)) {
+      try {
+        fs.mkdirSync(userDir, { recursive: true }); // 确保创建多级目录
+      } catch (err) {
+        console.error('Error creating directory:', err);
+        return;
+      }
+    }
+
     const filePath = path.join(userDir, fileName);
 
+    // 追加写入文件
     fs.appendFile(filePath, content + '\n', (err) => {
       if (err) {
         console.error('Error writing to file:', err);
