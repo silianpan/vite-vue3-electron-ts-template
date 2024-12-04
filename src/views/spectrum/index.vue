@@ -53,44 +53,6 @@
       </el-form-item> -->
     </el-form>
     <el-form inline>
-      <!-- <el-form-item style="margin-right:10px">
-        <template #label>
-          <span style="font-size:16px">{{'单载波检测:'}}</span>
-        </template>
-        <el-switch v-model="isEnable" :active-value="true" :inactive-value="false" />
-      </el-form-item>
-      <el-form-item style="margin-right:10px">
-        <template #label>
-          <span style="font-size:16px">{{'中心频点:'}}</span>
-        </template>
-        <el-input type="number" v-model="singleFreq" style="width:130px" :disabled="!isEnable" :step="0.1" :precision="3">
-          <template #suffix>
-            <span>MHz</span>
-          </template>
-        </el-input>
-      </el-form-item>
-      <el-form-item style="margin-right:10px">
-        <template #label>
-          <span style="font-size:16px">{{'偏差:'}}</span>
-        </template>
-        <el-input type="number" v-model="blasFreq" style="width:130px" :disabled="!isEnable" :step="0.1" :precision="3">
-          <template #suffix>
-            <span>KHz</span>
-          </template>
-        </el-input>
-      </el-form-item> -->
-      <!-- <el-form-item v-show="isEnable">
-        <template #label>
-          <span style="font-size:16px">{{'单载波判断阈值:'}}</span>
-        </template>
-        <div style="display:flex">
-          <el-input type="number" v-model="threshold" style="width:130px" />
-          <div style="font-size:16px;width:160px;margin-left:10px">
-            <span>是否为单载波：</span>
-            <span :style="{color: isSingleVal ? 'green' : 'red'}">{{`${isSingleVal ? '是' : '否'}`}}</span>
-          </div>
-        </div>
-      </el-form-item> -->
       <el-form-item style="margin-right:20px">
         <template #label>
           <span style="font-size:16px">{{'设备标识:'}}</span>
@@ -118,7 +80,71 @@
         <template #label>
           <span style="font-size:16px">{{'IP地址:'}}</span>
         </template>
-        <el-input v-model="apiServer" style="width:276px" @blur="handleApiServerBlur" />
+        <el-input v-model="apiServer" style="width:200px" @blur="handleApiServerBlur" />
+      </el-form-item>
+      <el-form-item style="margin-right:10px">
+        <template #label>
+          <span style="font-size:16px">{{'记录路径：'}}</span>
+        </template>
+        <el-input v-model="recordFilePath" style="width:240px" @blur="handleRecordFilePathBlur" />
+      </el-form-item>
+    </el-form>
+    <el-form inline>
+      <el-form-item>
+        <template #label>
+          <span style="font-size:16px">{{'单载波检测:'}}</span>
+        </template>
+        <!-- <el-switch v-model="isEnable" :active-value="true" :inactive-value="false" /> -->
+      </el-form-item>
+      <el-form-item style="margin-right:10px">
+        <template #label>
+          <span style="font-size:16px">{{'频点:'}}</span>
+        </template>
+        <el-input type="number" v-model="singleFreq" style="width:130px" :disabled="!isEnable" :step="0.1" :precision="3">
+          <template #suffix>
+            <span>MHz</span>
+          </template>
+        </el-input>
+      </el-form-item>
+      <el-form-item style="margin-right:10px">
+        <template #label>
+          <span style="font-size:16px">{{'区间:'}}</span>
+        </template>
+        <el-input type="number" v-model="blasFreq" style="width:130px" :disabled="!isEnable" :step="0.1" :precision="3">
+          <template #suffix>
+            <span>MHz</span>
+          </template>
+        </el-input>
+      </el-form-item>
+      <el-form-item>
+        <template #label>
+          <span style="font-size:16px">{{'上门限:'}}</span>
+        </template>
+        <div style="display:flex">
+          <el-input type="number" v-model="thresholdMin" style="width:130px" :step="0.1" :precision="3">
+            <template #suffix>
+              <span>dB</span>
+            </template>
+          </el-input>
+        </div>
+      </el-form-item>
+      <el-form-item>
+        <template #label>
+          <span style="font-size:16px">{{'下门限:'}}</span>
+        </template>
+        <div style="display:flex">
+          <el-input type="number" v-model="thresholdMax" style="width:130px" :step="0.1" :precision="3">
+            <template #suffix>
+              <span>dB</span>
+            </template>
+          </el-input>
+          <div style="font-size:16px;margin-left:20px">
+            <span :style="{color: isSingleVal ? 'green' : 'red'}">{{`${isSingleVal ? '是' : '否'}单载波`}}</span>
+          </div>
+        </div>
+      </el-form-item>
+      <el-form-item style="margin-right:10px">
+        <el-button type="primary" @click="handleRecordClick">记录</el-button>
       </el-form-item>
     </el-form>
     <div :id="id" :class="className" :style="{ height: height, width: width }" />
@@ -176,14 +202,16 @@ export default defineComponent({
       on_18: '18V',
     }
     const apiServer = ref('http://192.168.1.104')
+    const recordFilePath = ref('')
     const saveBtnLoading = ref(false);
     const scanEnable = ref(true);
-    const threshold = ref(10);
+    const thresholdMin = ref(0);
+    const thresholdMax = ref(0);
     const isSingleVal = ref(null);
     const intervalTime = ref(5);
     const bandWidth = ref(16);
     const scanFreq = ref(1697);
-    const singleFreq = ref(1401);
+    const singleFreq = ref(1697);
     const isEnable = ref(true);
     const startFreq = computed(() => {
       return scanFreq.value - bandWidth.value / 2
@@ -193,7 +221,6 @@ export default defineComponent({
 
     onMounted(() => {
       window.electronAPI.onSettingOdu(() => {
-        console.log('setting-odu');
         currentInstance?.appContext.config.globalProperties.$createEleModal({
           modalProps: {
             width: '40%',
@@ -206,13 +233,10 @@ export default defineComponent({
               apiServer: apiServer.value,
             }
           },
-          onOk: () => {
-            console.log('odu ok');
-          }
+          onOk: () => {}
         })
       });
       window.electronAPI.onSettingTelnet(() => {
-        console.log('setting-telenet');
         currentInstance?.appContext.config.globalProperties.$createEleModal({
           modalProps: {
             width: '40%',
@@ -225,9 +249,7 @@ export default defineComponent({
               apiServer: apiServer.value,
             }
           },
-          onOk: () => {
-            console.log('odu ok');
-          }
+          onOk: () => {}
         })
       });
       apiServer.value = localStorage.getItem('apiServer') || 'http://192.168.1.104'
@@ -238,7 +260,6 @@ export default defineComponent({
       cleanTimer();
     });
     // watch(() => maxPowerLogIndex.value, (val) => {
-    //   console.log('watch index', val)
     //   if (myChart && !isEmpty(val)) {
     //     myChart.dispatchAction({
     //         type: 'showTip',
@@ -384,7 +405,6 @@ export default defineComponent({
     }
     // 计算平均功率
     // function calculateAveragePower(powerValues) {
-    //     console.log('powerValues.length',powerValues.reduce((sum, value) => NP.plus(sum, value), 0), powerValues.length);
     //     return powerValues.reduce((sum, value) => sum + value, 0) / powerValues.length;
     // }
 
@@ -408,45 +428,62 @@ export default defineComponent({
     }
 
     // 判断是否为单载波信号
-    // function isSingleCarrier(powerValues, threshold) {
+    // function isSingleCarrier(powerValues, thresholdMin) {
     //     const averagePower = calculateAveragePower(powerValues);
-    //     console.log('averagePower', averagePower);
     //     const stdDev = calculateStandardDeviation(powerValues, averagePower);
     //     const { maxIndex, maxValue } = findMaxPowerIndex(powerValues);
 
     //     // 判断标准差是否足够大，以及最大功率是否显著高于平均值
-    //     const isHighStdDev = stdDev > threshold * averagePower;
-    //     const isHighMaxValue = maxValue > threshold * averagePower;
-    //     console.log('stdDev maxValue', stdDev, maxValue)
+    //     const isHighStdDev = stdDev > thresholdMin * averagePower;
+    //     const isHighMaxValue = maxValue > thresholdMin * averagePower;
 
     //     return isHighStdDev && isHighMaxValue;
     // }
 
     // 判断是否为单载波信号
-    function isSingleCarrier2(powerValues, threshold) {
-      console.log('powerValues.length', powerValues.length);
+    // function isSingleCarrier2(powerValues) {
+    //   // 分辨率，求间隔
+    //   resolution.value = NP.divide(bandWidth.value, powerValues.length - 1);
+    //   // 最大功率索引
+    //   const { maxIndex, maxValue } = findMaxPowerIndex(powerValues);
+    //   maxPowerLogIndex.value = maxIndex;
+    //
+    //   // 起始频点
+    //   // const startFreq = scanFreq.value - bandWidth.value / 2;
+    //   // 最大索引位置频点
+    //   const maxIndexPreq = resolution.value * maxIndex + startFreq.value;
+    //
+    //   // 和单载波中心频点差绝对值
+    //   const singleDiff = Math.abs(NP.minus(maxIndexPreq, singleFreq.value));
+    //
+    //   // 算上偏差的分辨率
+    //   const resolBla = resolution.value + NP.divide(blasFreq.value, 1000);
+    //   // 比较值
+    //   const compVal = singleDiff < resolBla;
+    //   return compVal;
+    // }
+
+    function isSingleCarrier3(powerValues) {
       // 分辨率，求间隔
       resolution.value = NP.divide(bandWidth.value, powerValues.length - 1);
       // 最大功率索引
       const { maxIndex, maxValue } = findMaxPowerIndex(powerValues);
       maxPowerLogIndex.value = maxIndex;
-      console.log('maxIndex', maxIndex, maxValue);
 
       // 起始频点
       // const startFreq = scanFreq.value - bandWidth.value / 2;
       // 最大索引位置频点
       const maxIndexPreq = resolution.value * maxIndex + startFreq.value;
-      console.log('maxIndexPreq', maxIndexPreq)
+      console.log('max index value freq', maxIndex, maxValue, maxIndexPreq);
 
-      // 和单载波中心频点差绝对值
-      const singleDiff = Math.abs(NP.minus(maxIndexPreq, singleFreq.value));
+      // x -> {频点+区间}
+      const isCon1 = maxIndexPreq >= NP.minus(singleFreq.value, blasFreq.value) &&
+        maxIndexPreq <= NP.plus(singleFreq.value, blasFreq.value);
 
-      // 算上偏差的分辨率
-      const resolBla = resolution.value + NP.divide(blasFreq.value, 1000);
-      // 比较值
-      const compVal = singleDiff < resolBla;
-      console.log('singleDiff < resolution', compVal, singleDiff, resolution.value, resolBla);
-      return compVal;
+      // y -> {上门限,下门限}
+      const isCon2 = maxValue >= thresholdMin.value && maxValue <= thresholdMax.value;
+      console.log('isCon1 isCon2', isCon1, isCon2);
+      return isCon1 && isCon2;
     }
 
     // 保存配置
@@ -461,11 +498,9 @@ export default defineComponent({
             "Content-Type": "multipart/form-data" 
           }
         }).then(res => {
-          console.log('rxcfg axios then res', res);
           ElMessage.success('rxcfg设置成功')
           saveBtnLoading.value = false;
         }).catch(err => {
-          console.log('rxcfg axios catch err', err);
           ElMessage.error('rxcfg设置失败')
           saveBtnLoading.value = false;
         })
@@ -479,11 +514,9 @@ export default defineComponent({
             "Content-Type": "multipart/form-data" 
           }
         }).then(res => {
-          console.log('spectrumcfg axios then res', res);
           ElMessage.success('spectrumcfg设置成功')
           saveBtnLoading.value = false;
         }).catch(err => {
-          console.log('spectrumcfg axios catch err', err);
           ElMessage.error('spectrumcfg设置失败')
           saveBtnLoading.value = false;
         })
@@ -546,7 +579,7 @@ export default defineComponent({
           powerArrData.push(powerVal);
         }
         if (isEnable.value) {
-          isSingleVal.value = isSingleCarrier2(powerArrData, threshold.value);
+          isSingleVal.value = isSingleCarrier3(powerArrData);
         }
 
         // if (pinpuData1.length > 20) {
@@ -663,7 +696,6 @@ export default defineComponent({
           }
         )
         .then((res) => {
-          console.log("telnet enable true", res);
           // ElMessage.success("设置成功");
         })
         .catch((err) => {
@@ -687,7 +719,6 @@ export default defineComponent({
           }
         )
         .then((res) => {
-          console.log("odu enable true", res);
         })
         .catch((err) => {
         });
@@ -736,13 +767,15 @@ export default defineComponent({
           }
         )
         .then((res) => {
-          console.log("odu pcba value", pcba.value);
           ElMessage.success('设备标识设置成功')
         })
         .catch((err) => {
           ElMessage.error('设备标识设置失败')
         });
     }
+    function handleRecordClick() {
+    }
+    function handleRecordFilePathBlur() {}
     return {
       pcba,
       pcbaQuery,
@@ -750,6 +783,7 @@ export default defineComponent({
       lnb_pwr,
       lnb_pwr_map,
       apiServer,
+      recordFilePath,
       saveBtnLoading,
       scanEnable,
       startFreq,
@@ -758,11 +792,14 @@ export default defineComponent({
       singleFreq,
       bandWidth,
       intervalTime,
-      threshold,
+      thresholdMin,
+      thresholdMax,
       isSingleVal,
       blasFreq,
       handleSaveClick,
+      handleRecordClick,
       handleApiServerBlur,
+      handleRecordFilePathBlur,
       handlePcbaClick,
     }
   }
