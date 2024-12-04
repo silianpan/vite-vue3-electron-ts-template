@@ -192,6 +192,8 @@ export default defineComponent({
     const pcba = ref(0)
     const pcbaQuery = ref(0)
     const maxPowerLogIndex = ref(null)
+    const maxPowerLogVal = ref(null)
+    const checkTime = ref('')
     let timer = null;
     let myChart = null;
     const telnetd_enable = ref('off')
@@ -451,10 +453,10 @@ export default defineComponent({
     //   // 起始频点
     //   // const startFreq = scanFreq.value - bandWidth.value / 2;
     //   // 最大索引位置频点
-    //   const maxIndexPreq = resolution.value * maxIndex + startFreq.value;
+    //   const maxIndexFreq = resolution.value * maxIndex + startFreq.value;
     //
     //   // 和单载波中心频点差绝对值
-    //   const singleDiff = Math.abs(NP.minus(maxIndexPreq, singleFreq.value));
+    //   const singleDiff = Math.abs(NP.minus(maxIndexFreq, singleFreq.value));
     //
     //   // 算上偏差的分辨率
     //   const resolBla = resolution.value + NP.divide(blasFreq.value, 1000);
@@ -473,16 +475,18 @@ export default defineComponent({
       // 起始频点
       // const startFreq = scanFreq.value - bandWidth.value / 2;
       // 最大索引位置频点
-      const maxIndexPreq = resolution.value * maxIndex + startFreq.value;
-      console.log('max index value freq', maxIndex, maxValue, maxIndexPreq);
+      const maxIndexFreq = resolution.value * maxIndex + startFreq.value;
+      maxPowerLogVal.value = maxIndexFreq;
+      console.log('max index value freq', maxIndex, maxValue, maxIndexFreq);
 
       // x -> {频点+区间}
-      const isCon1 = maxIndexPreq >= NP.minus(singleFreq.value, blasFreq.value) &&
-        maxIndexPreq <= NP.plus(singleFreq.value, blasFreq.value);
+      const isCon1 = maxIndexFreq >= NP.minus(singleFreq.value, blasFreq.value) &&
+        maxIndexFreq <= NP.plus(singleFreq.value, blasFreq.value);
 
       // y -> {上门限,下门限}
       const isCon2 = maxValue >= thresholdMin.value && maxValue <= thresholdMax.value;
       console.log('isCon1 isCon2', isCon1, isCon2);
+      checkTime.value = parseTime(new Date(), '{y}-{m}-{d} {h}:{i}:{s}')
       return isCon1 && isCon2;
     }
 
@@ -774,6 +778,13 @@ export default defineComponent({
         });
     }
     function handleRecordClick() {
+      if (window.fileAPI) {
+        console.log('写文件')
+        const str = `${pcba.value},${isSingleVal.value ? 'pass' : 'fail'},${NP.round(maxPowerLogVal.value, 2)}dB,${singleFreq.value}MHz/${blasFreq.value}MHz,${thresholdMin.value}~${thresholdMax.value}dB,${checkTime.value}`
+        window.fileAPI.appendToFile('设备检测结果.csv', str);
+      } else {
+        console.error('fileAPI is not available');
+      }
     }
     function handleRecordFilePathBlur() {}
     return {
