@@ -10,7 +10,7 @@
         <template #label>
           <span style="font-size:16px">{{'中心频点:'}}</span>
         </template>
-        <el-input type="number" v-model="scanFreq" style="width:130px" :step="0.1" :precision="3">
+        <el-input type="number" v-model="scanFreq" style="width:130px" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('scanFreq', scanFreq)">
           <template #suffix>
             <span>MHz</span>
           </template>
@@ -20,7 +20,7 @@
         <template #label>
           <span style="font-size:16px">{{'带宽:'}}</span>
         </template>
-        <el-input type="number" v-model="bandWidth" style="width:130px" :step="0.1" :precision="3">
+        <el-input type="number" v-model="bandWidth" style="width:130px" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('bandWidth', bandWidth)">
           <template #suffix>
             <span>MHz</span>
           </template>
@@ -36,7 +36,7 @@
         <template #label>
           <span style="font-size:16px">{{'刷新频率:'}}</span>
         </template>
-        <el-input type="number" v-model="intervalTime" style="width:130px" :step="0.1" :precision="3">
+        <el-input type="number" v-model="intervalTime" style="width:130px" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('intervalTime', intervalTime)">
           <template #suffix>
             <span>秒(s)</span>
           </template>
@@ -46,7 +46,7 @@
         <template #label>
           <span style="font-size:16px">{{'开关:'}}</span>
         </template>
-        <el-switch v-model="scanEnable" active-value="on" inactive-value="off" />
+        <el-switch v-model="scanEnable" active-value="on" inactive-value="off" @change="handleBlurSaveLocal('scanEnable', scanEnable)" />
       </el-form-item>
       <!-- <el-form-item style="margin-right:10px">
         <el-button type="primary" :loading="saveBtnLoading" @click="handleSaveClick">保存配置</el-button>
@@ -80,13 +80,13 @@
         <template #label>
           <span style="font-size:16px">{{'IP地址:'}}</span>
         </template>
-        <el-input v-model="apiServer" style="width:200px" @blur="handleApiServerBlur" />
+        <el-input v-model="apiServer" style="width:200px" @blur="handleBlurSaveLocal('apiServer', apiServer)" />
       </el-form-item>
       <el-form-item style="margin-right:10px">
         <template #label>
           <span style="font-size:16px">{{'记录路径：'}}</span>
         </template>
-        <el-input v-model="recordFilePath" style="width:240px" @blur="handleRecordFilePathBlur" />
+        <el-input v-model="recordFilePath" style="width:240px" @blur="handleBlurSaveLocal('recordFilePath', recordFilePath)" />
       </el-form-item>
     </el-form>
     <el-form inline>
@@ -100,7 +100,7 @@
         <template #label>
           <span style="font-size:16px">{{'频点:'}}</span>
         </template>
-        <el-input type="number" v-model="singleFreq" style="width:130px" :disabled="!isEnable" :step="0.1" :precision="3">
+        <el-input type="number" v-model="singleFreq" style="width:130px" :disabled="!isEnable" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('singleFreq', singleFreq)">
           <template #suffix>
             <span>MHz</span>
           </template>
@@ -110,7 +110,7 @@
         <template #label>
           <span style="font-size:16px">{{'区间:'}}</span>
         </template>
-        <el-input type="number" v-model="blasFreq" style="width:130px" :disabled="!isEnable" :step="0.1" :precision="3">
+        <el-input type="number" v-model="blasFreq" style="width:130px" :disabled="!isEnable" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('blasFreq', blasFreq)">
           <template #suffix>
             <span>MHz</span>
           </template>
@@ -121,7 +121,7 @@
           <span style="font-size:16px">{{'上门限:'}}</span>
         </template>
         <div style="display:flex">
-          <el-input type="number" v-model="thresholdMin" style="width:130px" :step="0.1" :precision="3">
+          <el-input type="number" v-model="thresholdMin" style="width:130px" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('thresholdMin', thresholdMin)">
             <template #suffix>
               <span>dB</span>
             </template>
@@ -133,7 +133,7 @@
           <span style="font-size:16px">{{'下门限:'}}</span>
         </template>
         <div style="display:flex">
-          <el-input type="number" v-model="thresholdMax" style="width:130px" :step="0.1" :precision="3">
+          <el-input type="number" v-model="thresholdMax" style="width:130px" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('thresholdMax', thresholdMax)">
             <template #suffix>
               <span>dB</span>
             </template>
@@ -180,7 +180,7 @@ export default defineComponent({
     },
     height: {
       type: String,
-      default:'calc(100% - 128px)'
+      default:'calc(100% - 168px)'
     },
     id: {
       type: String,
@@ -203,24 +203,24 @@ export default defineComponent({
       on_13: '13V',
       on_18: '18V',
     }
-    const apiServer = ref('http://192.168.1.104')
-    const recordFilePath = ref('')
+    const apiServer = ref(localStorage.getItem('apiServer') || 'http://192.168.1.104')
+    const recordFilePath = ref(localStorage.getItem('recordFilePath') || '')
     const recordFileName = ref('设备检测结果.csv')
+    const scanFreq = ref(localStorage.getItem('scanFreq') || 1697);
+    const bandWidth = ref(localStorage.getItem('bandWidth') || 16);
+    const intervalTime = ref(localStorage.getItem('intervalTime') || 5);
+    const scanEnable = ref(localStorage.getItem('scanEnable') || 'on');
+    const singleFreq = ref(localStorage.getItem('singleFreq') || 1697); 
+    const blasFreq = ref(localStorage.getItem('blasFreq') || 0);
+    const thresholdMin = ref(localStorage.getItem('thresholdMin') || 0);
+    const thresholdMax = ref(localStorage.getItem('thresholdMax') || 0);
     const saveBtnLoading = ref(false);
-    const scanEnable = ref(true);
-    const thresholdMin = ref(0);
-    const thresholdMax = ref(0);
     const isSingleVal = ref(null);
-    const intervalTime = ref(5);
-    const bandWidth = ref(16);
-    const scanFreq = ref(1697);
-    const singleFreq = ref(1697);
     const isEnable = ref(true);
     const startFreq = computed(() => {
       return scanFreq.value - bandWidth.value / 2
     })
     const resolution = ref(0);
-    const blasFreq = ref(0);
 
     onMounted(() => {
       recordFilePath.value = window.fileAPI.getUserDir();
@@ -256,7 +256,6 @@ export default defineComponent({
           onOk: () => {}
         })
       });
-      apiServer.value = localStorage.getItem('apiServer') || 'http://192.168.1.104'
       initChartData();
       initTask();
     });
@@ -678,9 +677,9 @@ export default defineComponent({
       
     }
 
-    function handleApiServerBlur() {
-      if (!isEmpty(apiServer.value)) {
-        localStorage.setItem('apiServer', apiServer.value)
+    function handleBlurSaveLocal(key, value) {
+      if (!isEmpty(value)) {
+        localStorage.setItem(key, value)
       }
     }
 
@@ -811,7 +810,7 @@ export default defineComponent({
       blasFreq,
       handleSaveClick,
       handleRecordClick,
-      handleApiServerBlur,
+      handleBlurSaveLocal,
       handleRecordFilePathBlur,
       handlePcbaClick,
     }
