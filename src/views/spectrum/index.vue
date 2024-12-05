@@ -311,6 +311,15 @@ export default defineComponent({
         tooltip: {
           trigger: "axis",
           alwaysShowContent: true,
+          formatter: (params) => {
+            console.log('params', params)
+            if (!isEmpty(params)) {
+              const item = params[0]
+              const x = resolution.value * item.value[0] + startFreq.value
+              const y = item.value[1]
+              return `${item.marker} ${item.seriesName}<p>${NP.round(x, 2)} MHz : ${y} dB</p>`
+            }
+          } 
           // position: function (pt) {
           //   return [pt[0], "10%"];
           // },
@@ -347,7 +356,7 @@ export default defineComponent({
           },
           {
             type: "value",
-            name: '功率log',
+            name: '功率计算值',
             position: 'right',
             alighTicks: true,
             axisLabel: {
@@ -389,7 +398,7 @@ export default defineComponent({
             data: [],
           },
           {
-            name: '功率log',
+            name: '功率计算值',
             yAxisIndex: 1,
             type: "line",
             symbol: "circle",
@@ -500,13 +509,14 @@ export default defineComponent({
 
       if (rxcfgVal) {
         axios.post(`${apiServer.value}/action/shelltool`, {
-          set: `rxcfg -s s,id=${0},enable=on,specinv=1,freq=${NP.times(scanFreq.value, 1000)},band=${NP.divide(NP.times(bandWidth.value, 1000), 2)}`
+          // set: `rxcfg -s s,id=${0},enable=on,specinv=1,freq=${NP.times(scanFreq.value, 1000)},band=${NP.divide(NP.times(bandWidth.value, 1000), 2)}`
+          set: `rxcfg -s s,id=${0},enable=on,freq=${NP.times(scanFreq.value, 1000)},band=${NP.divide(NP.times(bandWidth.value, 1000), 2)}`
         }, {
           headers: {
             "Content-Type": "multipart/form-data" 
           }
         }).then(res => {
-          ElMessage.success('rxcfg设置成功')
+          // ElMessage.success('rxcfg设置成功')
           saveBtnLoading.value = false;
         }).catch(err => {
           ElMessage.error('rxcfg设置失败')
@@ -522,7 +532,7 @@ export default defineComponent({
             "Content-Type": "multipart/form-data" 
           }
         }).then(res => {
-          ElMessage.success('spectrumcfg设置成功')
+          // ElMessage.success('spectrumcfg设置成功')
           saveBtnLoading.value = false;
         }).catch(err => {
           ElMessage.error('spectrumcfg设置失败')
@@ -543,7 +553,8 @@ export default defineComponent({
           const tmpBandWidth = NP.divide(rxItem.band, 1000) * 2
           const tmpScanFreq = NP.divide(rxItem.freq, 1000)
 
-          if (tmpBandWidth != bandWidth.value || tmpScanFreq != scanFreq.value || rxItem.enable != 'on' || rxItem.specinv != '1') {
+          // if (tmpBandWidth != bandWidth.value || tmpScanFreq != scanFreq.value || rxItem.enable != 'on' || rxItem.specinv != '1') {
+          if (tmpBandWidth != bandWidth.value || tmpScanFreq != scanFreq.value || rxItem.enable != 'on') {
             // 保存
             handleSaveClick(true, false)
           } else {
@@ -614,7 +625,7 @@ export default defineComponent({
               data: pinpuData1,
             },
             {
-              name: '功率log',
+              name: '功率计算值',
               type: "line",
               yAxisIndex: 1,
               symbol: "circle",
@@ -664,7 +675,7 @@ export default defineComponent({
             data: [],
           },
           {
-            name: '功率log',
+            name: '功率计算值',
             type: "line",
             yAxisIndex: 1,
             symbol: "circle",
@@ -784,7 +795,7 @@ export default defineComponent({
     function handleRecordClick() {
       if (window.fileAPI) {
         console.log('写文件')
-        const str = `${pcba.value},${isSingleVal.value ? 'pass' : 'fail'},${NP.round(maxPowerLogVal.value, 2)}MHz,${maxValueY.value}dB,${singleFreq.value}MHz/${blasFreq.value}KHz,${thresholdMin.value}~${thresholdMax.value}dB,${checkTime.value}`
+        const str = `${pcbaQuery.value},${isSingleVal.value ? 'pass' : 'fail'},${NP.round(maxPowerLogVal.value, 2)}MHz,${maxValueY.value}dB,${singleFreq.value}MHz/${blasFreq.value}KHz,${thresholdMin.value}~${thresholdMax.value}dB,${checkTime.value}`
         window.fileAPI.appendToFile(recordFilePath.value, recordFileName.value, str);
       } else {
         console.error('fileAPI is not available');
