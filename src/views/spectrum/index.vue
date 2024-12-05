@@ -112,7 +112,7 @@
         </template>
         <el-input type="number" v-model="blasFreq" style="width:130px" :disabled="!isEnable" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('blasFreq', blasFreq)">
           <template #suffix>
-            <span>MHz</span>
+            <span>KHz</span>
           </template>
         </el-input>
       </el-form-item>
@@ -214,6 +214,7 @@ export default defineComponent({
     const blasFreq = ref(localStorage.getItem('blasFreq') || 0);
     const thresholdMin = ref(localStorage.getItem('thresholdMin') || 0);
     const thresholdMax = ref(localStorage.getItem('thresholdMax') || 0);
+    const maxValueY = ref(0);
     const saveBtnLoading = ref(false);
     const isSingleVal = ref(null);
     const isEnable = ref(true);
@@ -472,6 +473,7 @@ export default defineComponent({
       // 最大功率索引
       const { maxIndex, maxValue } = findMaxPowerIndex(powerValues);
       maxPowerLogIndex.value = maxIndex;
+      maxValueY.value = maxValue;
 
       // 起始频点
       // const startFreq = scanFreq.value - bandWidth.value / 2;
@@ -481,8 +483,9 @@ export default defineComponent({
       console.log('max index value freq', maxIndex, maxValue, maxIndexFreq);
 
       // x -> {频点+区间}
-      const isCon1 = maxIndexFreq >= NP.minus(singleFreq.value, blasFreq.value) &&
-        maxIndexFreq <= NP.plus(singleFreq.value, blasFreq.value);
+      const qujianFreq = NP.divide(blasFreq.value, 1000);
+      const isCon1 = maxIndexFreq >= NP.minus(singleFreq.value, qujianFreq) &&
+        maxIndexFreq <= NP.plus(singleFreq.value, qujianFreq);
 
       // y -> {上门限,下门限}
       const isCon2 = maxValue >= thresholdMin.value && maxValue <= thresholdMax.value;
@@ -497,7 +500,7 @@ export default defineComponent({
 
       if (rxcfgVal) {
         axios.post(`${apiServer.value}/action/shelltool`, {
-          set: `rxcfg -s s,id=${0},enable=on,freq=${NP.times(scanFreq.value, 1000)},band=${NP.divide(NP.times(bandWidth.value, 1000), 2)}`
+          set: `rxcfg -s s,id=${0},enable=on,specinv=1,freq=${NP.times(scanFreq.value, 1000)},band=${NP.divide(NP.times(bandWidth.value, 1000), 2)}`
         }, {
           headers: {
             "Content-Type": "multipart/form-data" 
@@ -540,7 +543,7 @@ export default defineComponent({
           const tmpBandWidth = NP.divide(rxItem.band, 1000) * 2
           const tmpScanFreq = NP.divide(rxItem.freq, 1000)
 
-          if (tmpBandWidth != bandWidth.value || tmpScanFreq != scanFreq.value || rxItem.enable != 'on') {
+          if (tmpBandWidth != bandWidth.value || tmpScanFreq != scanFreq.value || rxItem.enable != 'on' || rxItem.specinv != '1') {
             // 保存
             handleSaveClick(true, false)
           } else {
@@ -781,7 +784,7 @@ export default defineComponent({
     function handleRecordClick() {
       if (window.fileAPI) {
         console.log('写文件')
-        const str = `${pcba.value},${isSingleVal.value ? 'pass' : 'fail'},${NP.round(maxPowerLogVal.value, 2)}dB,${singleFreq.value}MHz/${blasFreq.value}MHz,${thresholdMin.value}~${thresholdMax.value}dB,${checkTime.value}`
+        const str = `${pcba.value},${isSingleVal.value ? 'pass' : 'fail'},${NP.round(maxPowerLogVal.value, 2)}MHz,${maxValueY.value}dB,${singleFreq.value}MHz/${blasFreq.value}KHz,${thresholdMin.value}~${thresholdMax.value}dB,${checkTime.value}`
         window.fileAPI.appendToFile(recordFilePath.value, recordFileName.value, str);
       } else {
         console.error('fileAPI is not available');
