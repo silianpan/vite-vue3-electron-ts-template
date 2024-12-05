@@ -118,7 +118,7 @@
       </el-form-item>
       <el-form-item>
         <template #label>
-          <span style="font-size:16px">{{'上门限:'}}</span>
+          <span style="font-size:16px">{{'下门限:'}}</span>
         </template>
         <div style="display:flex">
           <el-input type="number" v-model="thresholdMin" style="width:130px" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('thresholdMin', thresholdMin)">
@@ -130,7 +130,7 @@
       </el-form-item>
       <el-form-item>
         <template #label>
-          <span style="font-size:16px">{{'下门限:'}}</span>
+          <span style="font-size:16px">{{'上门限:'}}</span>
         </template>
         <div style="display:flex">
           <el-input type="number" v-model="thresholdMax" style="width:130px" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('thresholdMax', thresholdMax)">
