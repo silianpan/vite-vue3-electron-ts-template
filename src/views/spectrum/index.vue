@@ -497,7 +497,7 @@ export default defineComponent({
 
       if (rxcfgVal) {
         axios.post(`${apiServer.value}/action/shelltool`, {
-          set: `rxcfg -s s,id=${0},freq=${NP.times(scanFreq.value, 1000)},band=${NP.divide(NP.times(bandWidth.value, 1000), 2)}`
+          set: `rxcfg -s s,id=${0},enable=on,freq=${NP.times(scanFreq.value, 1000)},band=${NP.divide(NP.times(bandWidth.value, 1000), 2)}`
         }, {
           headers: {
             "Content-Type": "multipart/form-data" 
@@ -540,7 +540,7 @@ export default defineComponent({
           const tmpBandWidth = NP.divide(rxItem.band, 1000) * 2
           const tmpScanFreq = NP.divide(rxItem.freq, 1000)
 
-          if (tmpBandWidth != bandWidth.value || tmpScanFreq != scanFreq.value) {
+          if (tmpBandWidth != bandWidth.value || tmpScanFreq != scanFreq.value || rxItem.enable != 'on') {
             // 保存
             handleSaveClick(true, false)
           } else {
