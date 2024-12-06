@@ -3,10 +3,13 @@
 </template>
 
 <script lang="ts">
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import Spectrum from "./views/spectrum/index.vue";
 import { defineComponent, ref, onMounted, getCurrentInstance } from 'vue';
+import Spectrum from './views/spectrum/index.vue';
+import OduForm from './views/odu/OduForm.vue';
+import TelnetForm from './views/telnet/TelnetForm.vue';
+import ScanForm from './views/scan/ScanForm.vue';
+import CheckForm from './views/check/CheckForm.vue';
+
 export default defineComponent({
   name: 'App',
   components: {
@@ -15,9 +18,58 @@ export default defineComponent({
   setup() {
     const currentInstance = getCurrentInstance();
     onMounted(() => {
-      // window.electronAPI.onSettingScan(() => {
-      //   console.log('setting-scan');
-      // });
+      window.electronAPI.onSettingOdu(() => {
+        currentInstance?.appContext.config.globalProperties.$createEleModal({
+          modalProps: {
+            width: '40%',
+            closeOnClickModal: false,
+            title: 'ODU配置',
+          },
+          content: {
+            template: OduForm,
+          },
+          onOk: () => {}
+        })
+      });
+      window.electronAPI.onSettingTelnet(() => {
+        currentInstance?.appContext.config.globalProperties.$createEleModal({
+          modalProps: {
+            width: '40%',
+            closeOnClickModal: false,
+            title: 'Telnet配置',
+          },
+          content: {
+            template: TelnetForm,
+          },
+          onOk: () => {}
+        })
+      });
+      window.electronAPI.onSettingScan(() => {
+        currentInstance?.appContext.config.globalProperties.$createEleModal({
+          modalProps: {
+            width: '40%',
+            closeOnClickModal: false,
+            title: '频谱扫描参数',
+          },
+          content: {
+            template: ScanForm,
+          },
+          onOk: () => {}
+        })
+      });
+      window.electronAPI.onSettingCheck(() => {
+        currentInstance?.appContext.config.globalProperties.$createEleModal({
+          modalProps: {
+            width: '40%',
+            closeOnClickModal: false,
+            title: '检测参数',
+          },
+          content: {
+            template: CheckForm,
+          },
+          onOk: () => {}
+        })
+      });
     })
   }
 });

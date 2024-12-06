@@ -1,57 +1,52 @@
 <template>
-    <el-form :model="formData">
+    <el-form :model="formData" label-width="auto" label-position="right">
       <el-form-item>
-        <template #label>
-          <span style="font-size:16px">{{'频谱扫描参数：'}}</span>
-        </template>
-      </el-form-item>
-      <el-form-item style="margin-right:10px">
         <template #label>
           <span style="font-size:16px">{{'中心频点:'}}</span>
         </template>
-        <el-input type="number" v-model="formData.scanFreq" style="width:130px" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('scanFreq')">
+        <el-input type="number" v-model="formData.scanFreq" style="width:100%" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('scanFreq')">
           <template #suffix>
             <span>MHz</span>
           </template>
         </el-input>
       </el-form-item>
-      <el-form-item style="margin-right:10px">
+      <el-form-item>
         <template #label>
           <span style="font-size:16px">{{'带宽:'}}</span>
         </template>
-        <el-input type="number" v-model="formData.bandWidth" style="width:130px" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('bandWidth')">
+        <el-input type="number" v-model="formData.bandWidth" style="width:100%" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('bandWidth')">
           <template #suffix>
             <span>MHz</span>
           </template>
         </el-input>
       </el-form-item>
-      <el-form-item style="margin-right:10px">
+      <el-form-item>
         <template #label>
           <span style="font-size:16px">{{'起始频点:'}}</span>
         </template>
         <span>{{ startFreq }} MHz</span>
       </el-form-item>
-      <el-form-item style="margin-right:10px">
+      <el-form-item>
         <template #label>
           <span style="font-size:16px">{{'刷新频率:'}}</span>
         </template>
-        <el-input type="number" v-model="formData.intervalTime" style="width:130px" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('intervalTime')">
+        <el-input type="number" v-model="formData.intervalTime" style="width:100%" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('intervalTime')">
           <template #suffix>
             <span>秒(s)</span>
           </template>
         </el-input>
       </el-form-item>
-      <el-form-item style="margin-right:10px">
+      <el-form-item>
         <template #label>
           <span style="font-size:16px">{{'开关:'}}</span>
         </template>
         <el-switch v-model="formData.scanEnable" active-value="on" inactive-value="off" @change="handleBlurSaveLocal('scanEnable')" />
       </el-form-item>
-      <el-form-item style="margin-right:10px">
+      <el-form-item>
         <template #label>
           <span style="font-size:16px">{{'IP地址:'}}</span>
         </template>
-        <el-input v-model="formData.apiServer" style="width:200px" @blur="handleBlurSaveLocal('apiServer')" />
+        <el-input v-model="formData.apiServer" style="width:100%" @blur="handleBlurSaveLocal('apiServer')" />
       </el-form-item>
     <div style="position: absolute; right: 30px">
       <el-button
@@ -66,11 +61,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, computed } from 'vue';
 
 export default defineComponent({
   name: 'ScanForm',
-  setup() {
+  setup(props, { emit }) {
     const saveBtnLoading = ref(false);
     const formData = ref({
       apiServer: localStorage.getItem('apiServer') || 'http://192.168.1.104',

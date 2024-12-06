@@ -1,26 +1,20 @@
 <template>
-    <el-form :model="formData">
+    <el-form :model="formData" label-width="auto" label-position="right">
       <el-form-item>
-        <template #label>
-          <span style="font-size:16px">{{'检测参数:'}}</span>
-        </template>
-        <!-- <el-switch v-model="isEnable" :active-value="true" :inactive-value="false" /> -->
-      </el-form-item>
-      <el-form-item style="margin-right:10px">
         <template #label>
           <span style="font-size:16px">{{'频点:'}}</span>
         </template>
-        <el-input type="number" v-model="formData.singleFreq" style="width:130px" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('singleFreq')">
+        <el-input type="number" v-model="formData.singleFreq" style="width:100%" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('singleFreq')">
           <template #suffix>
             <span>MHz</span>
           </template>
         </el-input>
       </el-form-item>
-      <el-form-item style="margin-right:10px">
+      <el-form-item>
         <template #label>
           <span style="font-size:16px">{{'区间:'}}</span>
         </template>
-        <el-input type="number" v-model="formData.blasFreq" style="width:130px" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('blasFreq')">
+        <el-input type="number" v-model="formData.blasFreq" style="width:100%" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('blasFreq')">
           <template #suffix>
             <span>KHz</span>
           </template>
@@ -30,31 +24,27 @@
         <template #label>
           <span style="font-size:16px">{{'下门限:'}}</span>
         </template>
-        <div style="display:flex">
-          <el-input type="number" v-model="formData.thresholdMin" style="width:130px" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('thresholdMin')">
-            <template #suffix>
-              <span>dB</span>
-            </template>
-          </el-input>
-        </div>
+        <el-input type="number" v-model="formData.thresholdMin" style="width:100%" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('thresholdMin')">
+          <template #suffix>
+            <span>dB</span>
+          </template>
+        </el-input>
       </el-form-item>
       <el-form-item>
         <template #label>
           <span style="font-size:16px">{{'上门限:'}}</span>
         </template>
-        <div style="display:flex">
-          <el-input type="number" v-model="formData.thresholdMax" style="width:130px" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('thresholdMax')">
-            <template #suffix>
-              <span>dB</span>
-            </template>
-          </el-input>
-        </div>
+        <el-input type="number" v-model="formData.thresholdMax" style="width:100%" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('thresholdMax')">
+          <template #suffix>
+            <span>dB</span>
+          </template>
+        </el-input>
       </el-form-item>
-      <el-form-item style="margin-right:40px">
+      <el-form-item>
         <template #label>
           <span style="font-size:16px">{{'记录路径：'}}</span>
         </template>
-        <el-input v-model="recordFilePath" style="width:300px" @blur="handleBlurSaveLocal('recordFilePath')" />
+        <el-input v-model="formData.recordFilePath" style="width:100%" @blur="handleBlurSaveLocal('recordFilePath')" />
       </el-form-item>
       <div style="position: absolute; right: 30px">
         <el-button
@@ -73,7 +63,7 @@ import { defineComponent, ref, onMounted } from 'vue';
 
 export default defineComponent({
   name: 'CheckForm',
-  setup() {
+  setup(props, { emit }) {
     const saveBtnLoading = ref(false);
     const formData = ref({
       singleFreq: localStorage.getItem('singleFreq') || 1697,

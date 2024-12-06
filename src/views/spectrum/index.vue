@@ -56,8 +56,6 @@ import NP from 'number-precision';
 NP.enableBoundaryChecking(false);
 import axios from 'axios';
 axios.defaults.timeout = 3000;
-import OduForm from '../odu/OduForm.vue';
-import TelnetForm from '../telnet/TelnetForm.vue';
 
 export default defineComponent({
   name: 'PageSpectrumHome',
@@ -191,32 +189,6 @@ export default defineComponent({
 
     onMounted(() => {
       recordFilePath.value = localStorage.getItem('recordFilePath') || window.fileAPI.getUserDir();
-      window.electronAPI.onSettingOdu(() => {
-        currentInstance?.appContext.config.globalProperties.$createEleModal({
-          modalProps: {
-            width: '40%',
-            closeOnClickModal: false,
-            title: 'ODU配置',
-          },
-          content: {
-            template: OduForm,
-          },
-          onOk: () => {}
-        })
-      });
-      window.electronAPI.onSettingTelnet(() => {
-        currentInstance?.appContext.config.globalProperties.$createEleModal({
-          modalProps: {
-            width: '40%',
-            closeOnClickModal: false,
-            title: 'Telnet配置',
-          },
-          content: {
-            template: TelnetForm,
-          },
-          onOk: () => {}
-        })
-      });
       initChartData();
       initTask();
     });
