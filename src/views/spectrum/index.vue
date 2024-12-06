@@ -56,6 +56,10 @@ import NP from 'number-precision';
 NP.enableBoundaryChecking(false);
 import axios from 'axios';
 axios.defaults.timeout = 3000;
+import OduForm from '../odu/OduForm.vue';
+import TelnetForm from '../telnet/TelnetForm.vue';
+import ScanForm from '../scan/ScanForm.vue';
+import CheckForm from '../check/CheckForm.vue';
 
 export default defineComponent({
   name: 'PageSpectrumHome',
@@ -94,7 +98,7 @@ export default defineComponent({
       on_18: '18V',
     }
 
-    const scanFormData = computed(() => ({
+    const scanFormData = ref({
       scanFreq: {
         label: '中心频点',
         value: localStorage.getItem('scanFreq') || 1697,
@@ -132,7 +136,7 @@ export default defineComponent({
         label: 'IP地址',
         value: localStorage.getItem('apiServer') || 'http://192.168.1.104',
       },
-    }));
+    });
 
     const checkFormData = ref({
       singleFreq: {
@@ -157,7 +161,7 @@ export default defineComponent({
       },
       telnetd_enable: {
         label: 'Telnet开关',
-        value: localStorage.getItem('setting-telnet-telnetd_enable'),
+        value: localStorage.getItem('telnetd_enable'),
         color: (val) => {
           return val === 'on' ? 'green' : 'red'
         },
@@ -167,7 +171,7 @@ export default defineComponent({
       },
       lnb_pwr: {
         label: 'ODU馈电电压',
-        value: localStorage.getItem('setting-odu-lnb_pwr'),
+        value: localStorage.getItem('lnb_pwr'),
         color: (val) => {
           return val !== 'off' ? 'green' : 'red'
         },
@@ -175,7 +179,7 @@ export default defineComponent({
           return lnb_pwr_map[val] 
         }
       },
-    })
+    });
 
     const recordFilePath = ref('')
     const recordFileName = ref('设备检测结果.csv')
@@ -191,19 +195,74 @@ export default defineComponent({
       recordFilePath.value = localStorage.getItem('recordFilePath') || window.fileAPI.getUserDir();
       initChartData();
       initTask();
+
+      window.electronAPI.onSettingOdu(() => {
+        currentInstance?.appContext.config.globalProperties.$createEleModal({
+          modalProps: {
+            width: '40%',
+            closeOnClickModal: false,
+            title: 'ODU配置',
+          },
+          content: {
+            template: OduForm,
+          },
+          onOk: () => {}
+        })
+      });
+      window.electronAPI.onSettingTelnet(() => {
+        currentInstance?.appContext.config.globalProperties.$createEleModal({
+          modalProps: {
+            width: '40%',
+            closeOnClickModal: false,
+            title: 'Telnet配置',
+          },
+          content: {
+            template: TelnetForm,
+          },
+          onOk: () => {}
+        })
+      });
+      window.electronAPI.onSettingScan(() => {
+        currentInstance?.appContext.config.globalProperties.$createEleModal({
+          modalProps: {
+            width: '40%',
+            closeOnClickModal: false,
+            title: '频谱扫描参数',
+          },
+          content: {
+            template: ScanForm,
+          },
+          onOk: () => {}
+        })
+      });
+      window.electronAPI.onSettingCheck(() => {
+        currentInstance?.appContext.config.globalProperties.$createEleModal({
+          modalProps: {
+            width: '40%',
+            closeOnClickModal: false,
+            title: '检测参数',
+          },
+          content: {
+            template: CheckForm,
+          },
+          onOk: () => {}
+        })
+      });
     });
     onUnmounted(() => {
       cleanTimer();
     });
-    // watch(() => maxPowerLogIndex.value, (val) => {
-    //   if (myChart && !isEmpty(val)) {
-    //     myChart.dispatchAction({
-    //         type: 'showTip',
-    //         seriesIndex: 1,
-    //         dataIndex: val 
-    //     });
-    //   }
-    // })
+
+    function updateScanFormData() {
+      for (let key in scanFormData.value) {
+        scanFormData.value[key] = localStorage.getItem(key)
+      }
+    }
+    function updateCheckFormData() {
+      for (let key in checkFormData.value) {
+        checkFormData.value[key] = localStorage.getItem(key)
+      }
+    }
 
     function initTask() {
       queryStSnrRate();

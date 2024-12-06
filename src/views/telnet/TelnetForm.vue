@@ -36,7 +36,7 @@ export default defineComponent({
 
     function handleSubmitClick() {
       // 存储本地
-      localStorage.setItem('setting-telnet-telnetd_enable', formData.value.telnetd_enable)
+      localStorage.setItem('telnetd_enable', formData.value.telnetd_enable)
 
       // 调用接口
       saveBtnLoading.value = true;
@@ -70,7 +70,7 @@ export default defineComponent({
     }
 
     function queryTelnetCfg() {
-       formData.value.telnetd_enable = localStorage.getItem('setting-telnet-telnetd_enable') || 'on'
+       formData.value.telnetd_enable = localStorage.getItem('telnetd_enable') || 'on'
       // axios
       //   .get(`${apiServer}/action/shelltool?get=telnetdcfg;`)
       //   .then((resAxios) => {

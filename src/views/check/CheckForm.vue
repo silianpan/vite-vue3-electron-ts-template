@@ -76,6 +76,9 @@ export default defineComponent({
       formData.value.recordFilePath = localStorage.getItem('recordFilePath') || window.fileAPI.getUserDir()
     });
     function handleSubmitClick() {
+      // 保存到本地
+      saveLocalStorage();
+
       ElMessage.success("设置成功");
       emit('ok');
       handleCancelClick();
@@ -84,7 +87,12 @@ export default defineComponent({
       emit("close");
     }
     function handleBlurSaveLocal(key) {
-      if (!isEmpty(formData.value[key])) {
+      // if (!isEmpty(formData.value[key])) {
+      //   localStorage.setItem(key, formData.value[key])
+      // }
+    }
+    function saveLocalStorage() {
+      for (let key in formData.value) {
         localStorage.setItem(key, formData.value[key])
       }
     }

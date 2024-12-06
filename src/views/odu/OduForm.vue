@@ -53,7 +53,7 @@ export default defineComponent({
 
     function handleSubmitClick() {
       // 存储本地
-      localStorage.setItem('setting-odu-lnb_pwr', formData.value.lnb_pwr)
+      localStorage.setItem('lnb_pwr', formData.value.lnb_pwr)
 
       // 调用接口
       saveBtnLoading.value = true;
@@ -87,7 +87,7 @@ export default defineComponent({
     }
 
     function queryOduCfg() {
-      formData.value.lnb_pwr = localStorage.getItem('setting-odu-lnb_pwr') || 'on_13';
+      formData.value.lnb_pwr = localStorage.getItem('lnb_pwr') || 'on_13';
       // axios
       //   .get(`${apiServer}/action/shelltool?get=oducfg;`)
       //   .then((resAxios) => {

@@ -78,9 +78,14 @@ export default defineComponent({
       return formData.value.scanFreq - formData.value.bandWidth / 2
     })
     function handleSubmitClick() {
-      const { apiServer, scanFreq, bandWidth, intervalTime, scanEnable } = formData.value
+      // 保存到本地
+      saveLocalStorage();
+
       // 调用接口
+      const { apiServer, scanFreq, bandWidth, intervalTime, scanEnable } = formData.value
       saveBtnLoading.value = true;
+
+      // rxcfg
       axios
         .post(
           `${apiServer}/action/shelltool`,
@@ -103,6 +108,8 @@ export default defineComponent({
           ElMessage.error("rxcfg设置失败");
           saveBtnLoading.value = false;
         });
+
+      // spectrumcfg
       axios
         .post(
           `${apiServer}/action/shelltool`,
@@ -130,7 +137,12 @@ export default defineComponent({
       emit("close");
     }
     function handleBlurSaveLocal(key) {
-      if (!isEmpty(formData.value[key])) {
+      // if (!isEmpty(formData.value[key])) {
+      //   localStorage.setItem(key, formData.value[key])
+      // }
+    }
+    function saveLocalStorage() {
+      for (let key in formData.value) {
         localStorage.setItem(key, formData.value[key])
       }
     }
