@@ -19,14 +19,14 @@
     <el-form inline>
       <el-form-item style="margin-right:40px">
         <template #label>
-          <span style="font-size:16px">{{'设备标识:'}}</span>
+          <span style="font-size:16px;font-weight:700">{{'设备标识:'}}</span>
         </template>
         <el-input v-model="pcba" style="width:300px" @blur="handlePcbaClick" @keyup.enter="handlePcbaClick" />
         <span style="margin-left:8px">{{ pcbaQuery }}</span>
       </el-form-item>
       <el-form-item style="margin-right:40px">
         <template #label>
-          <span style="font-size:16px">{{'记录路径：'}}</span>
+          <span style="font-size:16px;font-weight:700">{{'记录路径：'}}</span>
         </template>
         <span>{{ recordFilePath }}</span>
       </el-form-item>
@@ -70,7 +70,7 @@ export default defineComponent({
     },
     height: {
       type: String,
-      default:'calc(100% - 168px)'
+      default:'calc(100% - 220px)'
     },
     id: {
       type: String,
