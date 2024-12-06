@@ -52,13 +52,20 @@ function createWindow() {
     {
       label: '设置',
       submenu: [
-        // {
-        //   label: '频谱扫描参数',
-        //   click: () => {
-        //     // 向渲染进程发送事件
-        //     mainWindow.webContents.send('setting-scan');
-        //   }
-        // },
+        {
+          label: '频谱扫描参数',
+          click: () => {
+            // 向渲染进程发送事件
+            mainWindow.webContents.send('setting-scan');
+          }
+        },
+        {
+          label: '检测参数',
+          click: () => {
+            // 向渲染进程发送事件
+            mainWindow.webContents.send('setting-check');
+          }
+        },
         {
           label: 'ODU',
           click: () => {

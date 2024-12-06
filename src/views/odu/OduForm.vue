@@ -28,12 +28,6 @@ axios.defaults.timeout = 3000;
 
 export default defineComponent({
   name: "OduForm",
-  props: {
-    apiServer: {
-      type: String,
-      required: true,
-    },
-  },
   setup(props, { emit }) {
     // const formItems = [
     //   [
@@ -50,6 +44,7 @@ export default defineComponent({
     //     }
     //   ]
     // ]
+    const apiServer = localStorage.getItem('apiServer') || 'http://192.168.1.104';
     const saveBtnLoading = ref(false);
     const formData = ref({});
     onMounted(() => {
@@ -64,7 +59,7 @@ export default defineComponent({
       saveBtnLoading.value = true;
       axios
         .post(
-          `${props.apiServer}/action/shelltool`,
+          `${apiServer}/action/shelltool`,
           {
             set: `oducfg -s s,lnb_pwr=${formData.value.lnb_pwr}`,
           },
@@ -94,7 +89,7 @@ export default defineComponent({
     function queryOduCfg() {
       formData.value.lnb_pwr = localStorage.getItem('setting-odu-lnb_pwr') || 'on_13';
       // axios
-      //   .get(`${props.apiServer}/action/shelltool?get=oducfg;`)
+      //   .get(`${apiServer}/action/shelltool?get=oducfg;`)
       //   .then((resAxios) => {
       //     const res = resAxios.data;
       //     if (!isEmpty(res.oducfg)) {

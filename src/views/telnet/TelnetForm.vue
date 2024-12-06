@@ -26,13 +26,8 @@ axios.defaults.timeout = 3000;
 
 export default defineComponent({
   name: "TelnetForm",
-  props: {
-    apiServer: {
-      type: String,
-      required: true,
-    },
-  },
   setup(props, { emit }) {
+    const apiServer = localStorage.getItem('apiServer') || 'http://192.168.1.104';
     const saveBtnLoading = ref(false);
     const formData = ref({});
     onMounted(() => {
@@ -47,7 +42,7 @@ export default defineComponent({
       saveBtnLoading.value = true;
       axios
         .post(
-          `${props.apiServer}/action/shelltool`,
+          `${apiServer}/action/shelltool`,
           {
             set: `telnetdcfg -s s,telnetd_enable=${formData.value.telnetd_enable}`,
           },
@@ -77,7 +72,7 @@ export default defineComponent({
     function queryTelnetCfg() {
        formData.value.telnetd_enable = localStorage.getItem('setting-telnet-telnetd_enable') || 'on'
       // axios
-      //   .get(`${props.apiServer}/action/shelltool?get=telnetdcfg;`)
+      //   .get(`${apiServer}/action/shelltool?get=telnetdcfg;`)
       //   .then((resAxios) => {
       //     const res = resAxios.data;
       //     if (!isEmpty(res.telnetdcfg)) {

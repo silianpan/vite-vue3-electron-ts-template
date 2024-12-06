@@ -1,150 +1,42 @@
 <template>
-  <div style="position:absolute;top:20px;bottom:20px;left:0;right:0;">
+  <div style="position:absolute;top:10px;bottom:10px;left:0;right:0;">
+    <div style="display:flex;justify-content:center;padding:10px">
+      <el-descriptions border size="large" :column="3" title="频谱扫描参数">
+        <el-descriptions-item v-for="(item, key) in scanFormData" :key="key" :label="item.label">
+          <span :style="{color: item.color ? item.color(item.value) : null}">
+            {{ item.formater ? item.formater(item.value) : item.unit ? `${item.value} ${item.unit}` : item.value }}
+          </span>
+        </el-descriptions-item>
+      </el-descriptions>
+      <el-descriptions border size="large" :column="3" title="检测参数">
+        <el-descriptions-item v-for="(item, key) in checkFormData" :key="key" :label="item.label">
+          <span :style="{color: item.color ? item.color(item.value) : null}">
+            {{ item.formater ? item.formater(item.value) : item.unit ? `${item.value} ${item.unit}` : item.value }}
+          </span>
+        </el-descriptions-item>
+      </el-descriptions>
+    </div>
     <el-form inline>
-      <el-form-item>
-        <template #label>
-          <span style="font-size:16px">{{'频谱扫描参数：'}}</span>
-        </template>
-      </el-form-item>
-      <el-form-item style="margin-right:10px">
-        <template #label>
-          <span style="font-size:16px">{{'中心频点:'}}</span>
-        </template>
-        <el-input type="number" v-model="scanFreq" style="width:130px" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('scanFreq', scanFreq)">
-          <template #suffix>
-            <span>MHz</span>
-          </template>
-        </el-input>
-      </el-form-item>
-      <el-form-item style="margin-right:10px">
-        <template #label>
-          <span style="font-size:16px">{{'带宽:'}}</span>
-        </template>
-        <el-input type="number" v-model="bandWidth" style="width:130px" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('bandWidth', bandWidth)">
-          <template #suffix>
-            <span>MHz</span>
-          </template>
-        </el-input>
-      </el-form-item>
-      <el-form-item style="margin-right:10px">
-        <template #label>
-          <span style="font-size:16px">{{'起始频点:'}}</span>
-        </template>
-        <span>{{ startFreq }} MHz</span>
-      </el-form-item>
-      <el-form-item style="margin-right:10px">
-        <template #label>
-          <span style="font-size:16px">{{'刷新频率:'}}</span>
-        </template>
-        <el-input type="number" v-model="intervalTime" style="width:130px" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('intervalTime', intervalTime)">
-          <template #suffix>
-            <span>秒(s)</span>
-          </template>
-        </el-input>
-      </el-form-item>
-      <el-form-item style="margin-right:10px">
-        <template #label>
-          <span style="font-size:16px">{{'开关:'}}</span>
-        </template>
-        <el-switch v-model="scanEnable" active-value="on" inactive-value="off" @change="handleBlurSaveLocal('scanEnable', scanEnable)" />
-      </el-form-item>
-      <!-- <el-form-item style="margin-right:10px">
-        <el-button type="primary" :loading="saveBtnLoading" @click="handleSaveClick">保存配置</el-button>
-      </el-form-item> -->
-    </el-form>
-    <el-form inline>
-      <el-form-item style="margin-right:20px">
+      <el-form-item style="margin-right:40px">
         <template #label>
           <span style="font-size:16px">{{'设备标识:'}}</span>
         </template>
-        <el-input v-model="pcba" style="width:130px" @blur="handlePcbaClick" @keyup.enter="handlePcbaClick" />
+        <el-input v-model="pcba" style="width:300px" @blur="handlePcbaClick" @keyup.enter="handlePcbaClick" />
         <span style="margin-left:8px">{{ pcbaQuery }}</span>
       </el-form-item>
-      <el-form-item>
-        <template #label>
-          <span style="font-size:16px">{{'Telnet开关:'}}</span>
-        </template>
-        <div style="font-size:16px;margin-left:10px">
-          <span :style="{color: telnetd_enable == 'on' ? 'green' : 'red'}">{{`${telnetd_enable == 'on' ? '开' : '关'}`}}</span>
-        </div>
-      </el-form-item>
-      <el-form-item>
-        <template #label>
-          <span style="font-size:16px">{{'ODU馈电电压:'}}</span>
-        </template>
-        <div style="font-size:16px;margin-left:10px">
-          <span :style="{color: lnb_pwr != 'off' ? 'green' : 'red'}">{{`${lnb_pwr_map[lnb_pwr]}`}}</span>
-        </div>
-      </el-form-item>
-      <el-form-item style="margin-right:10px">
-        <template #label>
-          <span style="font-size:16px">{{'IP地址:'}}</span>
-        </template>
-        <el-input v-model="apiServer" style="width:200px" @blur="handleBlurSaveLocal('apiServer', apiServer)" />
-      </el-form-item>
-      <el-form-item style="margin-right:10px">
+      <el-form-item style="margin-right:40px">
         <template #label>
           <span style="font-size:16px">{{'记录路径：'}}</span>
         </template>
-        <el-input v-model="recordFilePath" style="width:240px" @blur="handleBlurSaveLocal('recordFilePath', recordFilePath)" />
+        <span>{{ recordFilePath }}</span>
       </el-form-item>
-    </el-form>
-    <el-form inline>
-      <el-form-item>
-        <template #label>
-          <span style="font-size:16px">{{'单载波检测:'}}</span>
-        </template>
-        <!-- <el-switch v-model="isEnable" :active-value="true" :inactive-value="false" /> -->
-      </el-form-item>
-      <el-form-item style="margin-right:10px">
-        <template #label>
-          <span style="font-size:16px">{{'频点:'}}</span>
-        </template>
-        <el-input type="number" v-model="singleFreq" style="width:130px" :disabled="!isEnable" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('singleFreq', singleFreq)">
-          <template #suffix>
-            <span>MHz</span>
-          </template>
-        </el-input>
-      </el-form-item>
-      <el-form-item style="margin-right:10px">
-        <template #label>
-          <span style="font-size:16px">{{'区间:'}}</span>
-        </template>
-        <el-input type="number" v-model="blasFreq" style="width:130px" :disabled="!isEnable" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('blasFreq', blasFreq)">
-          <template #suffix>
-            <span>KHz</span>
-          </template>
-        </el-input>
+      <el-form-item style="margin-right:40px">
+        <span :style="{color:isSingleVal && pcbaQuery != '0' ? 'green' : 'red', fontSize: '20px', fontWeight: 700}">{{ pcbaQuery == '0' ? '不可记录' : isSingleVal ? '成功' : '失败'}}</span>
       </el-form-item>
       <el-form-item>
-        <template #label>
-          <span style="font-size:16px">{{'下门限:'}}</span>
-        </template>
-        <div style="display:flex">
-          <el-input type="number" v-model="thresholdMin" style="width:130px" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('thresholdMin', thresholdMin)">
-            <template #suffix>
-              <span>dB</span>
-            </template>
-          </el-input>
-        </div>
-      </el-form-item>
-      <el-form-item>
-        <template #label>
-          <span style="font-size:16px">{{'上门限:'}}</span>
-        </template>
-        <div style="display:flex">
-          <el-input type="number" v-model="thresholdMax" style="width:130px" :step="0.1" :precision="3" @blur="handleBlurSaveLocal('thresholdMax', thresholdMax)">
-            <template #suffix>
-              <span>dB</span>
-            </template>
-          </el-input>
-          <div style="font-size:16px;margin-left:20px">
-            <span :style="{color: isSingleVal ? 'green' : 'red'}">{{`${isSingleVal ? '是' : '否'}单载波`}}</span>
-          </div>
-        </div>
-      </el-form-item>
-      <el-form-item style="margin-right:10px">
-        <el-button type="primary" @click="handleRecordClick">记录</el-button>
+        <el-button style="width:160px" size="large" type="primary" @click="handleRecordClick">
+          <span style="font-size:20px;">记录</span>
+        </el-button>
       </el-form-item>
     </el-form>
     <div :id="id" :class="className" :style="{ height: height, width: width }" />
@@ -189,42 +81,116 @@ export default defineComponent({
   },
   setup(props) {
     const currentInstance = getCurrentInstance();
-    const pcba = ref(0)
-    const pcbaQuery = ref(0)
+    const pcba = ref('0')
+    const pcbaQuery = ref('0')
     const maxPowerLogIndex = ref(null)
     const maxPowerLogVal = ref(null)
     const checkTime = ref('')
     let timer = null;
     let myChart = null;
-    const telnetd_enable = ref('off')
-    const lnb_pwr = ref('off')
+    const local_telnetd_enable = ref('')
+    const local_lnb_pwr = ref('')
     const lnb_pwr_map = {
       off: '关',
       on_13: '13V',
       on_18: '18V',
     }
-    const apiServer = ref(localStorage.getItem('apiServer') || 'http://192.168.1.104')
-    const recordFilePath = ref(localStorage.getItem('recordFilePath') || '')
+
+    const scanFormData = computed(() => ({
+      scanFreq: {
+        label: '中心频点',
+        value: localStorage.getItem('scanFreq') || 1697,
+        unit: 'MHz',
+      },
+      bandWidth: {
+        label: '带宽',
+        value: localStorage.getItem('bandWidth') || 16,
+        unit: 'MHz',
+      },
+      startFreq: {
+        label: '起始频点',
+        value: '',
+        formater: (val) => {
+          const compVal = scanFormData.value.scanFreq.value - scanFormData.value.bandWidth.value / 2;
+          return `${compVal} MHz`;
+        }
+      },
+      intervalTime: {
+        label: '刷新频率',
+        value: localStorage.getItem('intervalTime') || 5,
+        unit: '秒(s)',
+      },
+      scanEnable: {
+        label: '开关',
+        value: localStorage.getItem('scanEnable') || 'on',
+        color: (val) => {
+          return val === 'on' ? 'green' : 'red'
+        },
+        formater: (val) => {
+          return val === 'on' ? '开' : '关' 
+        }
+      },
+      apiServer: {
+        label: 'IP地址',
+        value: localStorage.getItem('apiServer') || 'http://192.168.1.104',
+      },
+    }));
+
+    const checkFormData = ref({
+      singleFreq: {
+        label: '频点',
+        value: localStorage.getItem('singleFreq') || 1697,
+        unit: 'MHz',
+      },
+      blasFreq: {
+        label: '区间',
+        value: localStorage.getItem('blasFreq') || 0, 
+        unit: 'KHz',
+      },
+      thresholdMin: {
+        label: '下门限',
+        value: localStorage.getItem('thresholdMin') || 0,
+        unit: 'dB',
+      },
+      thresholdMax: {
+        label: '上门限',
+        value: localStorage.getItem('thresholdMax') || 0,
+        unit: 'dB',
+      },
+      telnetd_enable: {
+        label: 'Telnet开关',
+        value: localStorage.getItem('setting-telnet-telnetd_enable'),
+        color: (val) => {
+          return val === 'on' ? 'green' : 'red'
+        },
+        formater: (val) => {
+          return val === 'on' ? '开' : '关' 
+        }
+      },
+      lnb_pwr: {
+        label: 'ODU馈电电压',
+        value: localStorage.getItem('setting-odu-lnb_pwr'),
+        color: (val) => {
+          return val !== 'off' ? 'green' : 'red'
+        },
+        formater: (val) => {
+          return lnb_pwr_map[val] 
+        }
+      },
+    })
+
+    const recordFilePath = ref('')
     const recordFileName = ref('设备检测结果.csv')
-    const scanFreq = ref(localStorage.getItem('scanFreq') || 1697);
-    const bandWidth = ref(localStorage.getItem('bandWidth') || 16);
-    const intervalTime = ref(localStorage.getItem('intervalTime') || 5);
-    const scanEnable = ref(localStorage.getItem('scanEnable') || 'on');
-    const singleFreq = ref(localStorage.getItem('singleFreq') || 1697); 
-    const blasFreq = ref(localStorage.getItem('blasFreq') || 0);
-    const thresholdMin = ref(localStorage.getItem('thresholdMin') || 0);
-    const thresholdMax = ref(localStorage.getItem('thresholdMax') || 0);
     const maxValueY = ref(0);
     const saveBtnLoading = ref(false);
     const isSingleVal = ref(null);
     const isEnable = ref(true);
-    const startFreq = computed(() => {
-      return scanFreq.value - bandWidth.value / 2
-    })
     const resolution = ref(0);
 
+    const startFreq = computed(() => scanFormData.value.scanFreq.value - scanFormData.value.bandWidth.value / 2);
+
     onMounted(() => {
-      recordFilePath.value = window.fileAPI.getUserDir();
+      recordFilePath.value = localStorage.getItem('recordFilePath') || window.fileAPI.getUserDir();
       window.electronAPI.onSettingOdu(() => {
         currentInstance?.appContext.config.globalProperties.$createEleModal({
           modalProps: {
@@ -234,9 +200,6 @@ export default defineComponent({
           },
           content: {
             template: OduForm,
-            props: {
-              apiServer: apiServer.value,
-            }
           },
           onOk: () => {}
         })
@@ -250,9 +213,6 @@ export default defineComponent({
           },
           content: {
             template: TelnetForm,
-            props: {
-              apiServer: apiServer.value,
-            }
           },
           onOk: () => {}
         })
@@ -286,7 +246,7 @@ export default defineComponent({
         queryOduCfg();
         handleAutoOpenTelnet();
         handleAutoOpenOdu();
-      }, intervalTime.value * 1000)
+      }, scanFormData.value.intervalTime.value * 1000)
     }
     // 清理定时器
     function cleanTimer() {
@@ -312,7 +272,6 @@ export default defineComponent({
           trigger: "axis",
           alwaysShowContent: true,
           formatter: (params) => {
-            console.log('params', params)
             if (!isEmpty(params)) {
               const item = params[0]
               const x = resolution.value * item.value[0] + startFreq.value
@@ -456,21 +415,21 @@ export default defineComponent({
     // 判断是否为单载波信号
     // function isSingleCarrier2(powerValues) {
     //   // 分辨率，求间隔
-    //   resolution.value = NP.divide(bandWidth.value, powerValues.length - 1);
+    //   resolution.value = NP.divide(scanFormData.value.bandWidth.value, powerValues.length - 1);
     //   // 最大功率索引
     //   const { maxIndex, maxValue } = findMaxPowerIndex(powerValues);
     //   maxPowerLogIndex.value = maxIndex;
     //
     //   // 起始频点
-    //   // const startFreq = scanFreq.value - bandWidth.value / 2;
+    //   // const startFreq = scanFormData.value.scanFreq.value - scanFormData.value.bandWidth.value / 2;
     //   // 最大索引位置频点
     //   const maxIndexFreq = resolution.value * maxIndex + startFreq.value;
     //
     //   // 和单载波中心频点差绝对值
-    //   const singleDiff = Math.abs(NP.minus(maxIndexFreq, singleFreq.value));
+    //   const singleDiff = Math.abs(NP.minus(maxIndexFreq, checkFormData.value.singleFreq.value));
     //
     //   // 算上偏差的分辨率
-    //   const resolBla = resolution.value + NP.divide(blasFreq.value, 1000);
+    //   const resolBla = resolution.value + NP.divide(checkFormData.value.blasFreq.value, 1000);
     //   // 比较值
     //   const compVal = singleDiff < resolBla;
     //   return compVal;
@@ -478,26 +437,26 @@ export default defineComponent({
 
     function isSingleCarrier3(powerValues) {
       // 分辨率，求间隔
-      resolution.value = NP.divide(bandWidth.value, powerValues.length - 1);
+      resolution.value = NP.divide(scanFormData.value.bandWidth.value, powerValues.length - 1);
       // 最大功率索引
       const { maxIndex, maxValue } = findMaxPowerIndex(powerValues);
       maxPowerLogIndex.value = maxIndex;
       maxValueY.value = maxValue;
 
       // 起始频点
-      // const startFreq = scanFreq.value - bandWidth.value / 2;
+      // const startFreq = scanFormData.value.scanFreq.value - scanFormData.value.bandWidth.value / 2;
       // 最大索引位置频点
       const maxIndexFreq = resolution.value * maxIndex + startFreq.value;
       maxPowerLogVal.value = maxIndexFreq;
       console.log('max index value freq', maxIndex, maxValue, maxIndexFreq);
 
       // x -> {频点+区间}
-      const qujianFreq = NP.divide(blasFreq.value, 1000);
-      const isCon1 = maxIndexFreq >= NP.minus(singleFreq.value, qujianFreq) &&
-        maxIndexFreq <= NP.plus(singleFreq.value, qujianFreq);
+      const qujianFreq = NP.divide(checkFormData.value.blasFreq.value, 1000);
+      const isCon1 = maxIndexFreq >= NP.minus(checkFormData.value.singleFreq.value, qujianFreq) &&
+        maxIndexFreq <= NP.plus(checkFormData.value.singleFreq.value, qujianFreq);
 
       // y -> {上门限,下门限}
-      const isCon2 = maxValue >= thresholdMin.value && maxValue <= thresholdMax.value;
+      const isCon2 = maxValue >= checkFormData.value.thresholdMin.value && maxValue <= checkFormData.value.thresholdMax.value;
       console.log('isCon1 isCon2', isCon1, isCon2);
       checkTime.value = parseTime(new Date(), '{y}-{m}-{d} {h}:{i}:{s}')
       return isCon1 && isCon2;
@@ -508,9 +467,8 @@ export default defineComponent({
       saveBtnLoading.value = true
 
       if (rxcfgVal) {
-        axios.post(`${apiServer.value}/action/shelltool`, {
-          // set: `rxcfg -s s,id=${0},enable=on,specinv=1,freq=${NP.times(scanFreq.value, 1000)},band=${NP.divide(NP.times(bandWidth.value, 1000), 2)}`
-          set: `rxcfg -s s,id=${0},enable=on,freq=${NP.times(scanFreq.value, 1000)},band=${NP.divide(NP.times(bandWidth.value, 1000), 2)}`
+        axios.post(`${scanFormData.value.apiServer.value}/action/shelltool`, {
+          set: `rxcfg -s s,id=${0},enable=on,freq=${NP.times(scanFormData.value.scanFreq.value, 1000)},band=${NP.divide(NP.times(scanFormData.value.bandWidth.value, 1000), 2)}`
         }, {
           headers: {
             "Content-Type": "multipart/form-data" 
@@ -525,8 +483,8 @@ export default defineComponent({
       }
 
       if (spectrumcfgVal) {
-        axios.post(`${apiServer.value}/action/shelltool`, {
-          set: `spectrumcfg -s s,enable=${scanEnable.value},cycle=${NP.times(intervalTime.value, 1000)}`
+        axios.post(`${scanFormData.value.apiServer.value}/action/shelltool`, {
+          set: `spectrumcfg -s s,enable=${scanFormData.value.scanEnable.value},cycle=${NP.times(scanFormData.value.intervalTime.value, 1000)}`
         }, {
           headers: {
             "Content-Type": "multipart/form-data" 
@@ -542,7 +500,7 @@ export default defineComponent({
     }
 
     function queryStSnrRate() {
-      axios.get(`${apiServer.value}/action/shelltool?get=mdata;rxinfo;spectrumcfg;`).then(resAxios => {
+      axios.get(`${scanFormData.value.apiServer.value}/action/shelltool?get=mdata;rxinfo;spectrumcfg;`).then(resAxios => {
         const res = resAxios.data;
         // 功率值
         let power = 0;
@@ -553,13 +511,11 @@ export default defineComponent({
           const tmpBandWidth = NP.divide(rxItem.band, 1000) * 2
           const tmpScanFreq = NP.divide(rxItem.freq, 1000)
 
-          // if (tmpBandWidth != bandWidth.value || tmpScanFreq != scanFreq.value || rxItem.enable != 'on' || rxItem.specinv != '1') {
-          if (tmpBandWidth != bandWidth.value || tmpScanFreq != scanFreq.value || rxItem.enable != 'on') {
+          if (tmpBandWidth != scanFormData.value.bandWidth.value ||
+            tmpScanFreq != scanFormData.value.scanFreq.value ||
+            rxItem.enable != 'on') {
             // 保存
             handleSaveClick(true, false)
-          } else {
-            bandWidth.value = tmpBandWidth
-            scanFreq.value = tmpScanFreq
           }
         }
         // 配置项
@@ -568,12 +524,10 @@ export default defineComponent({
           const tmpIntervalTime = NP.divide(specItem.cycle, 1000)
           const tmpScanEnable = specItem.enable
 
-          if (tmpIntervalTime != intervalTime.value || tmpScanEnable != scanEnable.value) {
+          if (tmpIntervalTime != scanFormData.value.intervalTime.value ||
+            tmpScanEnable != scanFormData.value.scanEnable.value) {
             // 保存
             handleSaveClick(false, true)
-          } else {
-            intervalTime.value = tmpIntervalTime
-            scanEnable.value = tmpScanEnable
           }
         }
         const { data, time, type } = res.mdata
@@ -698,15 +652,14 @@ export default defineComponent({
     }
 
     function handleAutoOpenTelnet() {
-      const local_telnetd_enable = localStorage.getItem('setting-telnet-telnetd_enable') || 'on'
-      if (telnetd_enable.value == local_telnetd_enable) {
+      if (local_telnetd_enable.value == checkFormData.value.telnetd_enable.value) {
         return
       }
       axios
         .post(
-          `${apiServer.value}/action/shelltool`,
+          `${scanFormData.value.apiServer.value}/action/shelltool`,
           {
-            set: `telnetdcfg -s s,telnetd_enable=${local_telnetd_enable}`,
+            set: `telnetdcfg -s s,telnetd_enable=${checkFormData.value.telnetd_enable.value}`,
           },
           {
             headers: {
@@ -721,15 +674,14 @@ export default defineComponent({
         });
     }
     function handleAutoOpenOdu() {
-      const local_lnb_pwr = localStorage.getItem('setting-odu-lnb_pwr') || 'on_13';
-      if (lnb_pwr.value == local_lnb_pwr) {
+      if (local_lnb_pwr.value == checkFormData.value.lnb_pwr.value) {
         return
       }
       axios
         .post(
-          `${apiServer.value}/action/shelltool`,
+          `${scanFormData.value.apiServer.value}/action/shelltool`,
           {
-            set: `oducfg -s s,lnb_pwr=${local_lnb_pwr}`,
+            set: `oducfg -s s,lnb_pwr=${checkFormData.value.lnb_pwr.value}`,
           },
           {
             headers: {
@@ -744,11 +696,11 @@ export default defineComponent({
     }
     function queryTelnetCfg() {
       axios
-        .get(`${apiServer.value}/action/shelltool?get=telnetdcfg;`)
+        .get(`${scanFormData.value.apiServer.value}/action/shelltool?get=telnetdcfg;`)
         .then((resAxios) => {
           const res = resAxios.data;
           if (!isEmpty(res.telnetdcfg)) {
-            telnetd_enable.value = res.telnetdcfg.telnetd_enable;
+            local_telnetd_enable.value = res.telnetdcfg.telnetd_enable;
           }
         })
         .catch((err) => {
@@ -757,12 +709,12 @@ export default defineComponent({
     }
     function queryOduCfg() {
       axios
-        .get(`${apiServer.value}/action/shelltool?get=oducfg;`)
+        .get(`${scanFormData.value.apiServer.value}/action/shelltool?get=oducfg;`)
         .then((resAxios) => {
           const res = resAxios.data;
           if (!isEmpty(res.oducfg)) {
-            lnb_pwr.value = res.oducfg.lnb_pwr;
-            pcbaQuery.value = res.oducfg.pcba || 0;
+            local_lnb_pwr.value = res.oducfg.lnb_pwr;
+            pcbaQuery.value = res.oducfg.pcba || '0';
           }
         })
         .catch((err) => {
@@ -770,12 +722,12 @@ export default defineComponent({
         });
     }
     function handlePcbaClick() {
-      if (isEmpty(pcba.value) || pcba.value == 0) {
+      if (isEmpty(pcba.value) || pcba.value == '0') {
         return
       }
       axios
         .post(
-          `${apiServer.value}/action/shelltool`,
+          `${scanFormData.value.apiServer.value}/action/shelltool`,
           {
             set: `oducfg -s s,pcba=${pcba.value}`,
           },
@@ -795,37 +747,32 @@ export default defineComponent({
     function handleRecordClick() {
       if (window.fileAPI) {
         console.log('写文件')
-        const str = `${pcbaQuery.value},${isSingleVal.value ? 'pass' : 'fail'},${NP.round(maxPowerLogVal.value, 2)}MHz,${maxValueY.value}dB,${singleFreq.value}MHz/${blasFreq.value}KHz,${thresholdMin.value}~${thresholdMax.value}dB,${checkTime.value}`
+        if (pcbaQuery.value == '0') {
+          ElMessage.error('设备标识符不能为0')
+          return;
+        }
+        const { singleFreq, blasFreq, thresholdMin, thresholdMax } = checkFormData.value
+        const str = `${pcbaQuery.value},${isSingleVal.value ? '成功' : '失败'},${NP.round(maxPowerLogVal.value, 2)}MHz,${maxValueY.value}dB,${singleFreq.value}MHz/${blasFreq.value}KHz,${thresholdMin.value}~${thresholdMax.value}dB,${checkTime.value}`
         window.fileAPI.appendToFile(recordFilePath.value, recordFileName.value, str);
       } else {
         console.error('fileAPI is not available');
       }
     }
-    function handleRecordFilePathBlur() {}
     return {
+      scanFormData,
+      checkFormData,
       pcba,
       pcbaQuery,
-      telnetd_enable,
-      lnb_pwr,
-      lnb_pwr_map,
-      apiServer,
+      local_telnetd_enable,
+      local_lnb_pwr,
       recordFilePath,
       saveBtnLoading,
-      scanEnable,
       startFreq,
       isEnable,
-      scanFreq,
-      singleFreq,
-      bandWidth,
-      intervalTime,
-      thresholdMin,
-      thresholdMax,
       isSingleVal,
-      blasFreq,
       handleSaveClick,
       handleRecordClick,
       handleBlurSaveLocal,
-      handleRecordFilePathBlur,
       handlePcbaClick,
     }
   }
