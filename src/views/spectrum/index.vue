@@ -74,7 +74,7 @@ export default defineComponent({
     },
     height: {
       type: String,
-      default:'calc(100% - 220px)'
+      default:'calc(100% - 240px)'
     },
     id: {
       type: String,
