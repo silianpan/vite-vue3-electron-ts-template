@@ -206,7 +206,10 @@ export default defineComponent({
           content: {
             template: OduForm,
           },
-          onOk: () => {}
+          onOk: () => {
+            console.log('odu ok')
+            updateCheckFormData();
+          }
         })
       });
       window.electronAPI.onSettingTelnet(() => {
@@ -219,7 +222,10 @@ export default defineComponent({
           content: {
             template: TelnetForm,
           },
-          onOk: () => {}
+          onOk: () => {
+            console.log('telnet ok')
+            updateCheckFormData();
+          }
         })
       });
       window.electronAPI.onSettingScan(() => {
@@ -232,7 +238,10 @@ export default defineComponent({
           content: {
             template: ScanForm,
           },
-          onOk: () => {}
+          onOk: () => {
+            console.log('scan ok')
+            updateScanFormData();
+          }
         })
       });
       window.electronAPI.onSettingCheck(() => {
@@ -245,7 +254,10 @@ export default defineComponent({
           content: {
             template: CheckForm,
           },
-          onOk: () => {}
+          onOk: () => {
+            console.log('check ok')
+            updateCheckFormData();
+          }
         })
       });
     });
@@ -255,12 +267,12 @@ export default defineComponent({
 
     function updateScanFormData() {
       for (let key in scanFormData.value) {
-        scanFormData.value[key] = localStorage.getItem(key)
+        scanFormData.value[key].value = localStorage.getItem(key)
       }
     }
     function updateCheckFormData() {
       for (let key in checkFormData.value) {
-        checkFormData.value[key] = localStorage.getItem(key)
+        checkFormData.value[key].value = localStorage.getItem(key)
       }
     }
 
@@ -683,14 +695,15 @@ export default defineComponent({
     }
 
     function handleAutoOpenTelnet() {
-      if (local_telnetd_enable.value == checkFormData.value.telnetd_enable.value) {
+      const tmpTelnetdEnable = checkFormData.value.telnetd_enable.value
+      if (isEmpty(tmpTelnetdEnable) || local_telnetd_enable.value == tmpTelnetdEnable) {
         return
       }
       axios
         .post(
           `${scanFormData.value.apiServer.value}/action/shelltool`,
           {
-            set: `telnetdcfg -s s,telnetd_enable=${checkFormData.value.telnetd_enable.value}`,
+            set: `telnetdcfg -s s,telnetd_enable=${tmpTelnetdEnable}`,
           },
           {
             headers: {
@@ -705,14 +718,15 @@ export default defineComponent({
         });
     }
     function handleAutoOpenOdu() {
-      if (local_lnb_pwr.value == checkFormData.value.lnb_pwr.value) {
+      const tmpLnbPwr = checkFormData.value.lnb_pwr.value
+      if (isEmpty(tmpLnbPwr) || local_lnb_pwr.value == tmpLnbPwr) {
         return
       }
       axios
         .post(
           `${scanFormData.value.apiServer.value}/action/shelltool`,
           {
-            set: `oducfg -s s,lnb_pwr=${checkFormData.value.lnb_pwr.value}`,
+            set: `oducfg -s s,lnb_pwr=${tmpLnbPwr}`,
           },
           {
             headers: {
