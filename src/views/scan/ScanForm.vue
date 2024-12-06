@@ -62,6 +62,10 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
+import NP from 'number-precision';
+NP.enableBoundaryChecking(false);
+import axios from 'axios';
+axios.defaults.timeout = 3000;
 
 export default defineComponent({
   name: 'ScanForm',
