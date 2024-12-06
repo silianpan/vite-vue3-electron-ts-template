@@ -274,6 +274,7 @@ export default defineComponent({
       for (let key in checkFormData.value) {
         checkFormData.value[key].value = localStorage.getItem(key)
       }
+      recordFilePath.value = localStorage.getItem('recordFilePath') || window.fileAPI.getUserDir();
     }
 
     function initTask() {
