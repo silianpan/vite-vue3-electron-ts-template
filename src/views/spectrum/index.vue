@@ -502,7 +502,8 @@ export default defineComponent({
       // y -> {上门限,下门限}
       const isCon2 = maxValue >= checkFormData.value.thresholdMin.value && maxValue <= checkFormData.value.thresholdMax.value;
       console.log('isCon1 isCon2', isCon1, isCon2);
-      checkTime.value = parseTime(new Date(), '{y}-{m}-{d} {h}:{i}:{s}')
+      // checkTime.value = parseTime(new Date(), '{y}-{m}-{d} {h}:{i}:{s}')
+      checkTime.value = parseTime(new Date(), '{y}_{m}_{d}_{h}_{i}_{s}')
       return isCon1 && isCon2;
     }
 
@@ -793,18 +794,18 @@ export default defineComponent({
     function handleRecordClick() {
       if (window.fileAPI) {
         console.log('写文件')
-        if (pcbaQuery.value == '0') {
-          ElMessage.error('设备标识符不能为0')
-          return;
-        }
+        // if (pcbaQuery.value == '0') {
+        //   ElMessage.error('设备标识符不能为0')
+        //   return;
+        // }
         const { singleFreq, blasFreq, thresholdMin, thresholdMax } = checkFormData.value
         // 写单个文件
         // const str = `${pcbaQuery.value},${isSingleVal.value ? '成功' : '失败'},${NP.round(maxPowerLogVal.value, 2)}MHz,${maxValueY.value}dB,${singleFreq.value}MHz/${blasFreq.value}KHz,${thresholdMin.value}~${thresholdMax.value}dB,${checkTime.value}`
         // window.fileAPI.appendToFile(recordFilePath.value, recordFileName.value, str);
 
         // 写多个空文件
-        const tmpCheckTime = checkTime.value.replace(' ', '_');
-        const str = `${pcbaQuery.value}_${isSingleVal.value ? '成功' : '失败'}_${tmpCheckTime}.txt`
+        // const tmpCheckTime = checkTime.value.replace(' ', '_').replace(':', '_').replace('-', '_');
+        const str = `${pcbaQuery.value}_${isSingleVal.value ? '成功' : '失败'}_${checkTime.value}.txt`
         window.fileAPI.appendToFile(recordFilePath.value, str);
       } else {
         console.error('fileAPI is not available');
