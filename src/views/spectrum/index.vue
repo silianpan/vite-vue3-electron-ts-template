@@ -794,10 +794,10 @@ export default defineComponent({
     function handleRecordClick() {
       if (window.fileAPI) {
         console.log('写文件')
-        // if (pcbaQuery.value == '0') {
-        //   ElMessage.error('设备标识符不能为0')
-        //   return;
-        // }
+        if (pcbaQuery.value == '0') {
+          ElMessage.error('设备标识符不能为0')
+          return;
+        }
         const { singleFreq, blasFreq, thresholdMin, thresholdMax } = checkFormData.value
         // 写单个文件
         // const str = `${pcbaQuery.value},${isSingleVal.value ? '成功' : '失败'},${NP.round(maxPowerLogVal.value, 2)}MHz,${maxValueY.value}dB,${singleFreq.value}MHz/${blasFreq.value}KHz,${thresholdMin.value}~${thresholdMax.value}dB,${checkTime.value}`
