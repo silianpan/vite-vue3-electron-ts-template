@@ -31,6 +31,28 @@ contextBridge.exposeInMainWorld('fileAPI', {
       userDir = os.homedir();
     }
 
+    const fileDir = path.join(userDir, "设备检测结果");
+    // 检查目录是否存在，不存在则创建
+    if (!fs.existsSync(fileDir)) {
+      try {
+        fs.mkdirSync(fileDir, { recursive: true }); // 确保创建多级目录
+      } catch (err) {
+        console.error('Error creating directory:', err);
+        return;
+      }
+    }
+
+    const filePath = path.join(fileDir, fileName);
+
+    // 创建空文件
+    fs.closeSync(fs.openSync(filePath, 'w'));
+  },
+  appendToFile2: (userDir: string, fileName: string, content: string) => {
+    // 如果 userDir 为空或 null，使用用户主目录
+    if (!userDir || userDir.length === 0) {
+      userDir = os.homedir();
+    }
+
     // 检查目录是否存在，不存在则创建
     if (!fs.existsSync(userDir)) {
       try {

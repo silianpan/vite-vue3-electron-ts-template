@@ -798,8 +798,14 @@ export default defineComponent({
           return;
         }
         const { singleFreq, blasFreq, thresholdMin, thresholdMax } = checkFormData.value
-        const str = `${pcbaQuery.value},${isSingleVal.value ? '成功' : '失败'},${NP.round(maxPowerLogVal.value, 2)}MHz,${maxValueY.value}dB,${singleFreq.value}MHz/${blasFreq.value}KHz,${thresholdMin.value}~${thresholdMax.value}dB,${checkTime.value}`
-        window.fileAPI.appendToFile(recordFilePath.value, recordFileName.value, str);
+        // 写单个文件
+        // const str = `${pcbaQuery.value},${isSingleVal.value ? '成功' : '失败'},${NP.round(maxPowerLogVal.value, 2)}MHz,${maxValueY.value}dB,${singleFreq.value}MHz/${blasFreq.value}KHz,${thresholdMin.value}~${thresholdMax.value}dB,${checkTime.value}`
+        // window.fileAPI.appendToFile(recordFilePath.value, recordFileName.value, str);
+
+        // 写多个空文件
+        const tmpCheckTime = checkTime.value.replace(' ', '_');
+        const str = `${pcbaQuery.value}_${isSingleVal.value ? '成功' : '失败'}_${tmpCheckTime}.txt`
+        window.fileAPI.appendToFile(recordFilePath.value, str);
       } else {
         console.error('fileAPI is not available');
       }
